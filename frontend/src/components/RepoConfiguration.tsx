@@ -8,7 +8,9 @@ import { clsx } from 'clsx';
 const RepoConfiguration: React.FC = () => {
     const { setStep, setRepoDetails, setLoading, setError, isLoading, error } = useMigrationStore();
 
+    const [sessionName, setSessionName] = useState('');
     const [repoUrl, setRepoUrl] = useState('');
+    const [targetRepoUrl, setTargetRepoUrl] = useState('');
     const [pat, setPat] = useState('');
 
     // Selection State
@@ -37,7 +39,9 @@ const RepoConfiguration: React.FC = () => {
             const { branches } = await api.verifyRepo(repoUrl, pat || undefined);
 
             setRepoDetails({
+                sessionName,
                 repoUrl,
+                targetRepoUrl,
                 pat,
                 sourceFramework: sFwString,
                 targetFramework: tFwString,
@@ -111,13 +115,33 @@ const RepoConfiguration: React.FC = () => {
 
             <div className="space-y-4">
                 <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Session Name</label>
+                    <input
+                        type="text"
+                        className="w-full p-2 border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500"
+                        placeholder="e.g. Pytest to Playwright Phase 1"
+                        value={sessionName}
+                        onChange={(e) => setSessionName(e.target.value)}
+                    />
+                </div>
+                <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Source Repo URL</label>
                     <input
                         type="text"
                         className="w-full p-2 border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500"
-                        placeholder="https://github.com/user/repo.git"
+                        placeholder="https://github.com/user/source-repo.git"
                         value={repoUrl}
                         onChange={(e) => setRepoUrl(e.target.value)}
+                    />
+                </div>
+                <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Target Repo URL (Optional)</label>
+                    <input
+                        type="text"
+                        className="w-full p-2 border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500"
+                        placeholder="https://github.com/user/target-repo.git"
+                        value={targetRepoUrl}
+                        onChange={(e) => setTargetRepoUrl(e.target.value)}
                     />
                 </div>
                 <div>

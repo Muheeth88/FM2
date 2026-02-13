@@ -1,17 +1,11 @@
-export interface MigrationSession {
-    id: string;
-    source_repo_url: string;
-    source_framework: string;
-    target_framework: string;
-    base_branch: string;
-    status: string;
+export interface RepoDetails {
+    repo_url: string;
+    pat?: string;
 }
 
-export interface FeatureEntity {
-    id: string;
-    name: string;
-    status: 'MIGRATED' | 'NOT_MIGRATED' | 'IN_PROGRESS' | 'FAILED';
-    test_files: string[];
+export interface VerifyRepoRequest {
+    repo_url: string;
+    pat?: string;
 }
 
 export interface VerifyRepoResponse {
@@ -19,8 +13,21 @@ export interface VerifyRepoResponse {
     message: string;
 }
 
-export interface CreateSessionRequest {
+export interface MigrationSession {
+    id: string;
     source_repo_url: string;
+    target_repo_url?: string;
+    source_framework: string;
+    target_framework: string;
+    base_branch: string;
+    status: string;
+    created_at: string;
+}
+
+export interface CreateSessionRequest {
+    name: string;
+    source_repo_url: string;
+    target_repo_url?: string;
     source_framework: string;
     target_framework: string;
     base_branch: string;

@@ -13,7 +13,9 @@ const BranchSelection: React.FC = () => {
         setError(null);
         try {
             const response = await api.createSession({
+                name: repoDetails.sessionName,
                 source_repo_url: repoDetails.repoUrl,
+                target_repo_url: repoDetails.targetRepoUrl || undefined,
                 source_framework: repoDetails.sourceFramework,
                 target_framework: repoDetails.targetFramework,
                 base_branch: selectedBranch,
@@ -31,7 +33,7 @@ const BranchSelection: React.FC = () => {
     if (success) {
         return (
             <div className="max-w-2xl mx-auto p-6 bg-white rounded-lg shadow-md text-center">
-                <h2 className="text-2xl font-bold mb-4 text-green-600">Session Initiated!</h2>
+                <h2 className="text-2xl font-bold mb-4 text-green-600">Session "{repoDetails.sessionName}" Initiated!</h2>
                 <p className="mb-6 text-gray-600">Migration session has been created successfully.</p>
                 <button className="bg-blue-600 text-white py-2 px-4 rounded" onClick={() => window.location.reload()}>
                     Finish
@@ -43,6 +45,7 @@ const BranchSelection: React.FC = () => {
     return (
         <div className="max-w-2xl mx-auto p-6 bg-white rounded-lg shadow-md">
             <div className="mb-6 p-4 bg-gray-50 rounded space-y-1 text-sm text-gray-600">
+                <p><strong>Session Name:</strong> {repoDetails.sessionName}</p>
                 <p><strong>Repo:</strong> {repoDetails.repoUrl}</p>
                 <p><strong>Source:</strong> {repoDetails.sourceFramework}</p>
                 <p><strong>Target:</strong> {repoDetails.targetFramework}</p>

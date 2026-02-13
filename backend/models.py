@@ -10,7 +10,9 @@ class VerifyRepoResponse(BaseModel):
     message: str
 
 class CreateSessionRequest(BaseModel):
+    name: str
     source_repo_url: str
+    target_repo_url: Optional[str] = None
     source_framework: str
     target_framework: str
     base_branch: str

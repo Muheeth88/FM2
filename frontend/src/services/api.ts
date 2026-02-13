@@ -1,7 +1,6 @@
 import axios from 'axios'
 import type {
     MigrationSession,
-    FeatureEntity,
     VerifyRepoResponse,
     CreateSessionResponse,
     CreateSessionRequest
@@ -29,10 +28,6 @@ export const api = {
     // Placeholder for future steps
     getSession: async (id: string): Promise<MigrationSession> => {
         const response = await apiInstance.get(`/api/session/${id}`)
-        return response.data
-    },
-    getFeatures: async (id: string): Promise<FeatureEntity[]> => {
-        const response = await apiInstance.get(`/api/session/${id}/features`)
         return response.data
     },
     startMigration: async (id: string, featureIds: string[]) => {

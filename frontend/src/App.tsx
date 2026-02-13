@@ -22,8 +22,8 @@ function App() {
           {step === 2 && <BranchSelection />}
           {step === 3 && (
             <div className="text-center bg-white p-12 rounded-lg shadow-md">
-              <h2 className="text-2xl font-bold text-green-600">All Set!</h2>
-              <p className="text-gray-600 mt-2">Proceeding to feature discovery and analysis...</p>
+              <h2 className="text-2xl font-bold text-green-600">Session Initiated!</h2>
+              <p className="text-gray-600 mt-2">The source and target repositories have been prepared in the workspace.</p>
             </div>
           )}
         </main>

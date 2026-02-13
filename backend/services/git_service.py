@@ -96,3 +96,84 @@ class GitService:
         except Exception as e:
             logger.error(f"Git get_branches exception: {str(e)}")
             return []
+
+    @staticmethod
+    def clone_repo(repo_url: str, dest_path: str, pat: str = None, branch: str = None) -> bool:
+        """
+        Clones a repository to a destination path.
+        """
+        try:
+            cmd = ["git", "clone"]
+            if branch:
+                cmd.extend(["-b", branch])
+            
+            # Use original URL in command, will replace if PAT exists
+            url_to_use = repo_url
+            if pat and repo_url.startswith("https://"):
+                clean_url = repo_url[len("https://"):]
+                url_to_use = f"https://{pat}@{clean_url}"
+            
+            cmd.extend([url_to_use, dest_path])
+            
+            env = os.environ.copy()
+            env["GIT_TERMINAL_PROMPT"] = "0"
+            env["GIT_ASKPASS"] = "echo"
+
+            result = subprocess.run(
+                cmd,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                text=True,
+                env=env,
+                timeout=120 # Cloning can take time
+            )
+
+            if result.returncode == 0:
+                logger.info(f"Successfully cloned {repo_url} into {dest_path}")
+                return True
+            else:
+                logger.error(f"Failed to clone {repo_url}: {result.stderr}")
+                return False
+        except Exception as e:
+            logger.error(f"Clone exception: {str(e)}")
+            return False
+
+    @staticmethod
+    def get_head_commit(repo_path: str) -> str:
+        """
+        Returns the current HEAD commit hash of a local repository.
+        """
+        try:
+            result = subprocess.run(
+                ["git", "rev-parse", "HEAD"],
+                cwd=repo_path,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                text=True,
+                timeout=10
+            )
+            if result.returncode == 0:
+                return result.stdout.strip()
+            return ""
+        except Exception as e:
+            logger.error(f"Failed to get HEAD commit for {repo_path}: {str(e)}")
+            return ""
+
+    @staticmethod
+    def init_repo(repo_path: str) -> bool:
+        """
+        Initializes a new git repository in a folder.
+        """
+        try:
+            result = subprocess.run(
+                ["git", "init"],
+                cwd=repo_path,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                text=True,
+                timeout=10
+            )
+            return result.returncode == 0
+        except Exception as e:
+            logger.error(f"Failed to init repo at {repo_path}: {str(e)}")
+            return False

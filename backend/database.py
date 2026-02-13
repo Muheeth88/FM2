@@ -20,6 +20,7 @@ def init_db():
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS sessions (
             id TEXT PRIMARY KEY,
+            name TEXT,
             source_repo_url TEXT NOT NULL,
             target_repo_url TEXT,
             source_framework TEXT NOT NULL,
@@ -44,7 +45,7 @@ def init_db():
             FOREIGN KEY (session_id) REFERENCES sessions (id)
         )
     ''')
-
+    
     conn.commit()
     conn.close()
     logger.info("Database initialized successfully.")
