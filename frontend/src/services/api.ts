@@ -1,23 +1,42 @@
 import axios from 'axios'
-import type { MigrationSession, FeatureEntity } from '../types'
+import type {
+    MigrationSession,
+    FeatureEntity,
+    VerifyRepoResponse,
+    CreateSessionResponse,
+    CreateSessionRequest
+} from '../types'
 
 const API_URL = 'http://localhost:8000'
 
+const apiInstance = axios.create({
+    baseURL: API_URL
+})
+
 export const api = {
-    createSession: async (data: { source_repo: string; target_repo: string; source_framework: string; target_framework: string }): Promise<MigrationSession> => {
-        const response = await axios.post(`${API_URL}/session/create`, data)
+    // Git Service
+    verifyRepo: async (repoUrl: string, pat?: string): Promise<VerifyRepoResponse> => {
+        const response = await apiInstance.post('/api/git/connect', { repo_url: repoUrl, pat })
         return response.data
     },
+
+    // Session Service
+    createSession: async (data: CreateSessionRequest): Promise<CreateSessionResponse> => {
+        const response = await apiInstance.post('/api/session', data)
+        return response.data
+    },
+
+    // Placeholder for future steps
     getSession: async (id: string): Promise<MigrationSession> => {
-        const response = await axios.get(`${API_URL}/session/${id}`)
+        const response = await apiInstance.get(`/api/session/${id}`)
         return response.data
     },
     getFeatures: async (id: string): Promise<FeatureEntity[]> => {
-        const response = await axios.get(`${API_URL}/session/${id}/features`)
+        const response = await apiInstance.get(`/api/session/${id}/features`)
         return response.data
     },
     startMigration: async (id: string, featureIds: string[]) => {
-        const response = await axios.post(`${API_URL}/session/${id}/migrate`, featureIds)
+        const response = await apiInstance.post(`/api/session/${id}/migrate`, featureIds)
         return response.data
     }
 }

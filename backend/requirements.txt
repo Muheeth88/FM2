@@ -1,7 +1,4 @@
 fastapi
 uvicorn
 pydantic
-python-multipart
-langgraph
-langchain
-langchain-openai
+gitpython

@@ -1,26 +1,53 @@
 import { create } from 'zustand'
-import type { MigrationSession, FeatureEntity } from '../types'
+import type { CreateSessionResponse } from '../types'
+
+interface RepoDetails {
+    repoUrl: string;
+    pat: string;
+    sourceFramework: string;
+    targetFramework: string;
+    branches: string[];
+}
 
 interface MigrationState {
-    activeSession: MigrationSession | null;
-    features: FeatureEntity[];
+    step: number;
+    repoDetails: RepoDetails;
+    sessionId: string | null;
     isLoading: boolean;
-    logs: string[];
+    error: string | null;
 
-    setSession: (session: MigrationSession) => void;
-    setFeatures: (features: FeatureEntity[]) => void;
-    addLog: (log: string) => void;
-    setLoading: (loading: boolean) => void;
+    setStep: (step: number) => void;
+    setRepoDetails: (details: RepoDetails) => void;
+    setSession: (response: CreateSessionResponse) => void;
+    setLoading: (isLoading: boolean) => void;
+    setError: (error: string | null) => void;
+    reset: () => void;
+}
+
+const initialState = {
+    step: 1,
+    repoDetails: {
+        repoUrl: '',
+        pat: '',
+        sourceFramework: '',
+        targetFramework: '',
+        branches: []
+    },
+    sessionId: null,
+    isLoading: false,
+    error: null
 }
 
 export const useMigrationStore = create<MigrationState>((set) => ({
-    activeSession: null,
-    features: [],
-    isLoading: false,
-    logs: [],
+    ...initialState,
 
-    setSession: (session) => set({ activeSession: session }),
-    setFeatures: (features) => set({ features }),
-    addLog: (log) => set((state) => ({ logs: [...state.logs, log] })),
+    setStep: (step) => set({ step }),
+    setRepoDetails: (repoDetails) => set({ repoDetails }),
+    setSession: (response) => set({
+        sessionId: response.session_id,
+        step: 3 // Advance to next phase if needed, though for now we just stay at 2 or show success
+    }),
     setLoading: (isLoading) => set({ isLoading }),
+    setError: (error) => set({ error }),
+    reset: () => set(initialState)
 }))
