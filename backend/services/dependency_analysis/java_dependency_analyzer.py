@@ -8,90 +8,105 @@ class JavaDependencyAnalyzer(AbstractDependencyAnalyzer):
 
     def __init__(self, repo_root: str):
         super().__init__(repo_root)
-        self.metadata = {}
+        self.java_map = {}   # ClassName -> AbsolutePath (first match, for import resolution)
+        self._index_repo(".java")
 
-    # 1️⃣ Scan Java files
-    def scan_java_files(self):
-        java_files = []
-        for root, _, files in os.walk(self.repo_root):
-            for file in files:
-                if file.endswith(".java"):
-                    java_files.append(Path(root) / file)
-        return java_files
+    def _index_repo(self, source_ext: str):
+        """Index Java files for class resolution and config files."""
+        super()._index_repo(source_ext)
+        for abs_path in self.all_files:
+            if abs_path.endswith(".java"):
+                class_name = os.path.basename(abs_path).replace(".java", "")
+                if class_name not in self.java_map:
+                    self.java_map[class_name] = abs_path
 
-    # 2️⃣ Detect if file is test file (consistent with FeatureExtractor)
-    def is_test_file(self, tree, file_path: Path):
-        for _, node in tree.filter(javalang.tree.MethodDeclaration):
-            for annotation in node.annotations:
-                if annotation.name == "Test":
-                    return True
-        if "Test" in file_path.name:
+
+    def is_test_file(self, tree, file_path_str: str):
+        """Check if a file is a test file using annotations or naming convention."""
+        try:
+            for _, node in tree.filter(javalang.tree.MethodDeclaration):
+                for annotation in node.annotations:
+                    if annotation.name == "Test":
+                        return True
+        except Exception:
+            pass
+            
+        if "Test" in os.path.basename(file_path_str):
             return True
         return False
 
     def analyze(self):
-        java_files = self.scan_java_files()
-        for file in java_files:
-            self.parse_file(str(file))
+        """Analyze all Java files to build the dependency graph."""
+        # Parse ALL Java files
+        for file_path in self.all_files:
+            if file_path.endswith(".java"):
+                self.parse_file(file_path)
 
-        # Merge graph and metadata
+        # Build final result format
         result = {}
-        for file_path, imports in self.graph.items():
+        for file_path, deps in self.graph.items():
             meta = self.metadata.get(file_path, {})
             result[file_path] = {
-                "imports": list(imports),
+                "imports": list(deps),
                 "package": meta.get("package"),
                 "type": meta.get("type", "source")
             }
         return result
 
     def parse_file(self, file_path):
+        """Parse a single Java file to extract imports and config references."""
         try:
-            p_file_path = Path(file_path)
-            code = p_file_path.read_text(encoding="utf-8")
+            with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
+                code = f.read()
+            
             tree = javalang.parse.parse(code)
             
-            # Extract package
             package_name = tree.package.name if tree.package else None
-            
-            # Use consistent test detection logic
-            file_type = "test" if self.is_test_file(tree, p_file_path) else "source"
+            file_type = "test" if self.is_test_file(tree, file_path) else "source"
             
             self.metadata[file_path] = {
                 "package": package_name,
                 "type": file_type
             }
 
-            imports = set()
+            deps = set()
+            
+            # 1. Standard imports
             for imp in tree.imports:
                 resolved = self.resolve_import(imp.path)
                 if resolved:
-                    imports.add(resolved)
+                    deps.add(resolved)
 
-            self.graph[file_path] = imports
+            # 2. String literal references to config files (e.g. "application.properties")
+            try:
+                for _, node in tree.filter(javalang.tree.Literal):
+                    if isinstance(node.value, str):
+                        # Strip quotes and check if it matches any indexed config file
+                        val = node.value.strip('"').strip("'")
+                        if val in self.config_map:
+                            deps.add(self.config_map[val])
+            except Exception:
+                # AST might fail on some complex literals, ignore and continue
+                pass
+
+            self.graph[file_path] = deps
             
         except Exception:
+            # If parsing fails for one file, still include it in graph with empty deps
             self.graph[file_path] = set()
-            self.metadata[file_path] = {
-                "package": None,
-                "type": "unknown"
-            }
+            if file_path not in self.metadata:
+                self.metadata[file_path] = {
+                    "package": None,
+                    "type": "unknown"
+                }
 
     def resolve_import(self, import_path):
-        # Simplistic resolution: match class name in the repo
+        """Resolve a package-style import to an absolute file path."""
         class_name = import_path.split(".")[-1]
-        
-        # In a real-world scenario, we'd use package structure.
-        # Here we look for files named ClassName.java
-        for root, _, files in os.walk(self.repo_root):
-            if class_name + ".java" in files:
-                candidate = Path(root) / (class_name + ".java")
-                # Return the absolute path as the identifier in the graph
-                return str(candidate)
-
-        return None
+        return self.java_map.get(class_name)
 
     def build_dependency_tree(self, entry_file):
+        """Transitive closure traversal."""
         visited = set()
         stack = [entry_file]
 
@@ -101,7 +116,6 @@ class JavaDependencyAnalyzer(AbstractDependencyAnalyzer):
                 continue
 
             visited.add(current)
-
             for dep in self.graph.get(current, []):
                 stack.append(dep)
 

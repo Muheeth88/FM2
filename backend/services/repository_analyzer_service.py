@@ -24,7 +24,7 @@ from services.feature_modeling.feature_config_mapper import FeatureConfigMapper
 from services.feature_modeling.feature_hook_mapper import FeatureHookMapper
 
 from services.ast_parsing.parser_factory import ASTParserFactory
-from services.dependency_resolution.import_normalizer import ImportNormalizer
+
 
 import logging
 
@@ -94,6 +94,16 @@ class RepositoryAnalyzerService:
                 "message": "Analysis completed successfully"
             })
 
+    async def _emit_step_result(self, session_id: str, step: str, data: dict):
+        """Emit detailed step result data to WebSocket client."""
+        if self.ws_manager:
+            await self.ws_manager.send(session_id, {
+                "type": "step_result",
+                "session_id": session_id,
+                "step": step,
+                "data": data
+            })
+
     # ==========================================================
     # PUBLIC ENTRY POINT
     # ==========================================================
@@ -118,6 +128,11 @@ class RepositoryAnalyzerService:
             build_system = RepoDiscovery.detect_build_system(repo_root)
             framework = FrameworkDetector.detect(repo_root, language)
             await self._emit_log(session_id, f"Detected: {language} / {framework} / {build_system}")
+            await self._emit_step_result(session_id, "Discovery", {
+                "language": language,
+                "framework": framework,
+                "build_system": build_system
+            })
 
             self._insert_session(session_id, repo_root, language, framework, build_system)
 
@@ -126,36 +141,71 @@ class RepositoryAnalyzerService:
             # --------------------------
             await self._emit_progress(session_id, "Build Metadata", 15, "Extracting build dependencies")
             self._process_build_metadata(session_id, repo_root, build_system)
+            build_dep_count = self.db.fetchone(
+                "SELECT COUNT(*) as cnt FROM build_dependencies WHERE session_id = ?", (session_id,)
+            )["cnt"]
+            await self._emit_step_result(session_id, "Build Metadata", {
+                "build_dependency_count": build_dep_count
+            })
 
             # --------------------------
             # 3. Feature Extraction
             # --------------------------
             await self._emit_progress(session_id, "Feature Extraction", 25, "Scanning for test features")
             self._process_features(session_id, language, repo_root)
+            feature_rows = self.db.fetchall(
+                "SELECT feature_name, file_path FROM features WHERE session_id = ?", (session_id,)
+            )
+            await self._emit_step_result(session_id, "Feature Extraction", {
+                "feature_count": len(feature_rows),
+                "features": [{"name": f["feature_name"], "file": f["file_path"].split("/")[-1]} for f in feature_rows]
+            })
 
             # --------------------------
-            # 4. Dependency Analysis (WITH ImportNormalizer)
+            # 4. Dependency Analysis
             # --------------------------
             await self._emit_progress(session_id, "Dependency Analysis", 40, "Analyzing import dependencies")
             self._process_dependencies(session_id, language, repo_root)
+            edge_count = self.db.fetchone(
+                "SELECT COUNT(*) as cnt FROM dependency_edges WHERE session_id = ?", (session_id,)
+            )["cnt"]
+            node_count = self.db.fetchone(
+                "SELECT COUNT(*) as cnt FROM dependency_nodes WHERE session_id = ?", (session_id,)
+            )["cnt"]
+            await self._emit_step_result(session_id, "Dependency Analysis", {
+                "node_count": node_count,
+                "edge_count": edge_count
+            })
 
             # --------------------------
             # 5. Build Graph
             # --------------------------
             await self._emit_progress(session_id, "Build Graph", 50, "Building dependency graph")
             graph, reverse_graph = self._build_dependency_graph(session_id)
+            await self._emit_step_result(session_id, "Build Graph", {
+                "graph_nodes": len(graph),
+                "reverse_graph_nodes": len(reverse_graph)
+            })
 
             # --------------------------
             # 6. Shared Modules
             # --------------------------
             await self._emit_progress(session_id, "Shared Modules", 60, "Detecting shared modules")
             shared_modules = self._persist_shared_modules(session_id, reverse_graph)
+            await self._emit_step_result(session_id, "Shared Modules", {
+                "shared_module_count": len(shared_modules),
+                "shared_modules": [s.split("/")[-1] for s in shared_modules]
+            })
 
             # --------------------------
             # 7. Config Files
             # --------------------------
             await self._emit_progress(session_id, "Config Files", 70, "Scanning configuration files")
             config_files = self._process_config_files(session_id, repo_root)
+            await self._emit_step_result(session_id, "Config Files", {
+                "config_file_count": len(config_files),
+                "config_files": [c.split("/")[-1] for c in config_files]
+            })
 
             # --------------------------
             # 8. Feature Modeling
@@ -169,18 +219,57 @@ class RepositoryAnalyzerService:
                 shared_modules=shared_modules,
                 config_files=config_files
             )
+            # Query per-feature modeling results
+            feature_model_summary = []
+            for fr in feature_rows:
+                fname = fr["feature_name"]
+                dep_cnt = self.db.fetchone(
+                    "SELECT COUNT(*) as cnt FROM feature_dependencies fd JOIN features f ON fd.feature_id = f.id WHERE f.feature_name = ? AND f.session_id = ?",
+                    (fname, session_id)
+                )["cnt"]
+                shared_cnt = self.db.fetchone(
+                    "SELECT COUNT(*) as cnt FROM feature_shared_modules fsm JOIN features f ON fsm.feature_id = f.id WHERE f.feature_name = ? AND f.session_id = ?",
+                    (fname, session_id)
+                )["cnt"]
+                config_cnt = self.db.fetchone(
+                    "SELECT COUNT(*) as cnt FROM feature_config_dependencies fcd JOIN features f ON fcd.feature_id = f.id WHERE f.feature_name = ? AND f.session_id = ?",
+                    (fname, session_id)
+                )["cnt"]
+                feature_model_summary.append({
+                    "feature": fname,
+                    "dependencies": dep_cnt,
+                    "shared_modules": shared_cnt,
+                    "config_deps": config_cnt
+                })
+            await self._emit_step_result(session_id, "Feature Modeling", {
+                "feature_models": feature_model_summary
+            })
 
             # --------------------------
             # 9. Assertions
             # --------------------------
             await self._emit_progress(session_id, "Assertions", 90, "Detecting assertion patterns")
             self._process_assertions(session_id, language, repo_root)
+            assertion_count = self.db.fetchone(
+                "SELECT COUNT(*) as cnt FROM assertions WHERE session_id = ?", (session_id,)
+            )["cnt"]
+            await self._emit_step_result(session_id, "Assertions", {
+                "assertion_count": assertion_count
+            })
 
             # --------------------------
             # 10. Driver Model
             # --------------------------
             await self._emit_progress(session_id, "Driver Model", 95, "Detecting driver patterns")
             self._process_driver_model(session_id, language, repo_root)
+            driver_row = self.db.fetchone(
+                "SELECT driver_type, initialization_pattern, thread_model FROM driver_model WHERE session_id = ?", (session_id,)
+            )
+            await self._emit_step_result(session_id, "Driver Model", {
+                "driver_type": driver_row["driver_type"] if driver_row else None,
+                "initialization_pattern": driver_row["initialization_pattern"] if driver_row else None,
+                "thread_model": driver_row["thread_model"] if driver_row else None
+            })
 
             # FINAL: Set status to ANALYZED
             self.db.execute("UPDATE sessions SET status = 'ANALYZED', progress = 100 WHERE id = ?", (session_id,))
@@ -262,6 +351,8 @@ class RepositoryAnalyzerService:
 
         for feature in features:
             feature_id = str(uuid.uuid4())
+            # Normalize path separators for consistency
+            norm_path = feature["file_path"].replace("\\", "/")
 
             self.db.execute(
                 """
@@ -273,7 +364,7 @@ class RepositoryAnalyzerService:
                     feature_id,
                     session_id,
                     feature["feature_name"],
-                    feature["file_path"],
+                    norm_path,
                     feature["framework"],
                     feature["language"],
                     str(feature.get("lifecycle_hooks", []))
@@ -304,9 +395,11 @@ class RepositoryAnalyzerService:
         analyzer = DependencyAnalyzerFactory.get_analyzer(language, repo_root)
         results = analyzer.analyze()
 
-        normalizer = ImportNormalizer(repo_root, language)
+
 
         for file_path, data in results.items():
+            # Normalize file_path separators
+            norm_file_path = file_path.replace("\\", "/")
 
             self.db.execute(
                 """
@@ -316,7 +409,7 @@ class RepositoryAnalyzerService:
                 """,
                 (
                     session_id,
-                    file_path,
+                    norm_file_path,
                     data.get("type", "unknown"),
                     data.get("package")
                 )
@@ -324,19 +417,18 @@ class RepositoryAnalyzerService:
 
             raw_imports = data.get("imports", [])
 
-            normalized_imports = normalizer.normalize_imports(
-                imports=raw_imports,
-                current_file=file_path
-            )
+            # All analyzers now resolve imports internally to absolute file paths.
+            # We just normalize separators to forward slashes for cross-platform consistency.
+            resolved_imports = [imp.replace("\\", "/") for imp in raw_imports]
 
-            for dep in normalized_imports:
+            for dep in resolved_imports:
                 self.db.execute(
                     """
                     INSERT INTO dependency_edges
                     (session_id, from_file, to_file)
                     VALUES (?, ?, ?)
                     """,
-                    (session_id, file_path, dep)
+                    (session_id, norm_file_path, dep)
                 )
 
     # ==========================================================
@@ -383,15 +475,17 @@ class RepositoryAnalyzerService:
         config_files = []
 
         for c in configs:
+            # Normalize path separators for consistency
+            norm_path = c["file_path"].replace("\\", "/")
             self.db.execute(
                 """
                 INSERT INTO config_files
                 (session_id, file_path, type)
                 VALUES (?, ?, ?)
                 """,
-                (session_id, c["file_path"], c["type"])
+                (session_id, norm_path, c["type"])
             )
-            config_files.append(c["file_path"])
+            config_files.append(norm_path)
 
         return config_files
 
@@ -414,6 +508,8 @@ class RepositoryAnalyzerService:
             (session_id,)
         )
 
+        logger.info(f"[Feature Modeling] graph size={len(graph)}, features={len(feature_rows)}, shared_modules={len(shared_modules)}, config_files={len(config_files)}")
+
         closure_builder = FeatureClosureBuilder(graph)
         shared_mapper = FeatureSharedMapper(shared_modules)
         config_mapper = FeatureConfigMapper(config_files)
@@ -429,21 +525,21 @@ class RepositoryAnalyzerService:
 
             for dep in closure:
                 self.db.execute(
-                    "INSERT INTO feature_dependencies VALUES (?, ?, ?)",
+                    "INSERT INTO feature_dependencies (session_id, feature_id, file_path) VALUES (?, ?, ?)",
                     (session_id, feature_id, dep)
                 )
 
             shared_for_feature = shared_mapper.map_feature_shared(closure)
             for s in shared_for_feature:
                 self.db.execute(
-                    "INSERT INTO feature_shared_modules VALUES (?, ?, ?)",
+                    "INSERT INTO feature_shared_modules (session_id, feature_id, file_path) VALUES (?, ?, ?)",
                     (session_id, feature_id, s)
                 )
 
             config_for_feature = config_mapper.map_feature_configs(closure)
             for c in config_for_feature:
                 self.db.execute(
-                    "INSERT INTO feature_config_dependencies VALUES (?, ?, ?)",
+                    "INSERT INTO feature_config_dependencies (session_id, feature_id, config_file) VALUES (?, ?, ?)",
                     (session_id, feature_id, c)
                 )
 
@@ -453,7 +549,7 @@ class RepositoryAnalyzerService:
 
             for h in hooks:
                 self.db.execute(
-                    "INSERT INTO feature_hooks VALUES (?, ?, ?)",
+                    "INSERT INTO feature_hooks (session_id, feature_id, hook_data) VALUES (?, ?, ?)",
                     (session_id, feature_id, h)
                 )
 

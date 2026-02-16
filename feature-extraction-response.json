@@ -1,0 +1,281 @@
+[
+    {
+        "feature_id": "0306a0e5-03de-43ab-90b7-8731d83fbe0f",
+        "feature_name": "CreateCompanyAPICompleteDetails",
+        "status": "NOT_MIGRATED",
+        "last_migrated_commit": null,
+        "dependent_file_count": 23,
+        "config_dependency_count": 3,
+        "shared_module_count": 18
+    },
+    {
+        "feature_id": "56d15305-f33d-4e9d-b599-1ceaf32a71f5",
+        "feature_name": "CreateCompanyAPITest",
+        "status": "NOT_MIGRATED",
+        "last_migrated_commit": null,
+        "dependent_file_count": 23,
+        "config_dependency_count": 3,
+        "shared_module_count": 18
+    },
+    {
+        "feature_id": "a4e6c597-19c3-4ef0-9241-4950d3912b09",
+        "feature_name": "CreateCompanyExceedingMaxLimitAPITest",
+        "status": "NOT_MIGRATED",
+        "last_migrated_commit": null,
+        "dependent_file_count": 23,
+        "config_dependency_count": 3,
+        "shared_module_count": 18
+    },
+    {
+        "feature_id": "1bf8a892-9f69-4302-8663-6626319d18dc",
+        "feature_name": "CreateCompanyWithMandatoryFieldsAPI",
+        "status": "NOT_MIGRATED",
+        "last_migrated_commit": null,
+        "dependent_file_count": 23,
+        "config_dependency_count": 3,
+        "shared_module_count": 18
+    },
+    {
+        "feature_id": "2a82d384-de82-46a9-af64-ab2a7cd78014",
+        "feature_name": "CreateCompanyWithoutMandatoryFieldsAPI",
+        "status": "NOT_MIGRATED",
+        "last_migrated_commit": null,
+        "dependent_file_count": 23,
+        "config_dependency_count": 3,
+        "shared_module_count": 18
+    },
+    {
+        "feature_id": "ba30a697-03af-4308-b7b2-8cda32550dbe",
+        "feature_name": "UpdateCompanyAPI",
+        "status": "NOT_MIGRATED",
+        "last_migrated_commit": null,
+        "dependent_file_count": 23,
+        "config_dependency_count": 3,
+        "shared_module_count": 18
+    },
+    {
+        "feature_id": "4ceadc9b-ac19-418c-81a6-757c2d80174d",
+        "feature_name": "CreateCompany",
+        "status": "NOT_MIGRATED",
+        "last_migrated_commit": null,
+        "dependent_file_count": 22,
+        "config_dependency_count": 1,
+        "shared_module_count": 18
+    },
+    {
+        "feature_id": "521d2d72-891b-4bd0-8389-927997c99b52",
+        "feature_name": "CreateContactHybrid",
+        "status": "NOT_MIGRATED",
+        "last_migrated_commit": null,
+        "dependent_file_count": 26,
+        "config_dependency_count": 1,
+        "shared_module_count": 22
+    },
+    {
+        "feature_id": "4045600e-bcdf-487c-8276-364f935f2d41",
+        "feature_name": "CreateContactMobile",
+        "status": "NOT_MIGRATED",
+        "last_migrated_commit": null,
+        "dependent_file_count": 21,
+        "config_dependency_count": 1,
+        "shared_module_count": 17
+    },
+    {
+        "feature_id": "891f17ad-41b2-4af2-8c8e-056bb1a8901a",
+        "feature_name": "Workflow",
+        "status": "NOT_MIGRATED",
+        "last_migrated_commit": null,
+        "dependent_file_count": 20,
+        "config_dependency_count": 1,
+        "shared_module_count": 16
+    },
+    {
+        "feature_id": "f1e35972-61fe-4c82-b442-3a6a3e7ab5da",
+        "feature_name": "CreateContactHybrid",
+        "status": "NOT_MIGRATED",
+        "last_migrated_commit": null,
+        "dependent_file_count": 0,
+        "config_dependency_count": 0,
+        "shared_module_count": 0
+    },
+    {
+        "feature_id": "bf44d557-6233-4ae5-bccb-cb3c714d2998",
+        "feature_name": "CreateContactMobile",
+        "status": "NOT_MIGRATED",
+        "last_migrated_commit": null,
+        "dependent_file_count": 0,
+        "config_dependency_count": 0,
+        "shared_module_count": 0
+    },
+    {
+        "feature_id": "6d806e28-ec7f-4cae-932a-5b78b4a09e06",
+        "feature_name": "CreateCase",
+        "status": "NOT_MIGRATED",
+        "last_migrated_commit": null,
+        "dependent_file_count": 24,
+        "config_dependency_count": 1,
+        "shared_module_count": 17
+    },
+    {
+        "feature_id": "5e96fec9-36ad-4d57-be46-b2c1a370e6ee",
+        "feature_name": "CompanyExceedingLength",
+        "status": "NOT_MIGRATED",
+        "last_migrated_commit": null,
+        "dependent_file_count": 22,
+        "config_dependency_count": 1,
+        "shared_module_count": 18
+    },
+    {
+        "feature_id": "53df8b84-848e-4a1c-8f33-bfdccd177860",
+        "feature_name": "CompanyWithMaximumLength",
+        "status": "NOT_MIGRATED",
+        "last_migrated_commit": null,
+        "dependent_file_count": 22,
+        "config_dependency_count": 1,
+        "shared_module_count": 18
+    },
+    {
+        "feature_id": "f8cff77c-402b-4b11-a426-ab2acd08479f",
+        "feature_name": "CreateCompany",
+        "status": "NOT_MIGRATED",
+        "last_migrated_commit": null,
+        "dependent_file_count": 0,
+        "config_dependency_count": 0,
+        "shared_module_count": 0
+    },
+    {
+        "feature_id": "1fe0729c-ba6d-4c3f-8f93-f672cd4ef04d",
+        "feature_name": "CreateCompanyDD",
+        "status": "NOT_MIGRATED",
+        "last_migrated_commit": null,
+        "dependent_file_count": 22,
+        "config_dependency_count": 1,
+        "shared_module_count": 18
+    },
+    {
+        "feature_id": "c3e950df-0521-4bed-9d0a-688f2bdfa853",
+        "feature_name": "CreateCompanyWithDatabase",
+        "status": "NOT_MIGRATED",
+        "last_migrated_commit": null,
+        "dependent_file_count": 23,
+        "config_dependency_count": 1,
+        "shared_module_count": 18
+    },
+    {
+        "feature_id": "7e3c9071-60f8-41da-b8f6-e4096d1afcaa",
+        "feature_name": "CreateCompanyWithoutMandatoryFields",
+        "status": "NOT_MIGRATED",
+        "last_migrated_commit": null,
+        "dependent_file_count": 22,
+        "config_dependency_count": 1,
+        "shared_module_count": 18
+    },
+    {
+        "feature_id": "4f57ffa8-312b-487f-8a77-ecf0825282e2",
+        "feature_name": "ContactExceedingLength",
+        "status": "NOT_MIGRATED",
+        "last_migrated_commit": null,
+        "dependent_file_count": 22,
+        "config_dependency_count": 1,
+        "shared_module_count": 18
+    },
+    {
+        "feature_id": "67578eac-58e9-40af-a128-6bbe544889ed",
+        "feature_name": "CreateContact",
+        "status": "NOT_MIGRATED",
+        "last_migrated_commit": null,
+        "dependent_file_count": 22,
+        "config_dependency_count": 1,
+        "shared_module_count": 18
+    },
+    {
+        "feature_id": "d8e1b312-edf4-48ab-ad6b-21e7078ac4f7",
+        "feature_name": "CreateContactAndLinkCompany",
+        "status": "NOT_MIGRATED",
+        "last_migrated_commit": null,
+        "dependent_file_count": 23,
+        "config_dependency_count": 1,
+        "shared_module_count": 19
+    },
+    {
+        "feature_id": "d13effa2-e914-4328-ae43-4494e85db9b6",
+        "feature_name": "CreateContactWithMaximumLength",
+        "status": "NOT_MIGRATED",
+        "last_migrated_commit": null,
+        "dependent_file_count": 22,
+        "config_dependency_count": 1,
+        "shared_module_count": 18
+    },
+    {
+        "feature_id": "b88d140b-98b3-48d7-b838-792ead0f081b",
+        "feature_name": "CreateContactWithoutMandatoryFields",
+        "status": "NOT_MIGRATED",
+        "last_migrated_commit": null,
+        "dependent_file_count": 22,
+        "config_dependency_count": 1,
+        "shared_module_count": 18
+    },
+    {
+        "feature_id": "958ae363-da16-46fd-86d1-eab7dac56f5b",
+        "feature_name": "CreateDeal",
+        "status": "NOT_MIGRATED",
+        "last_migrated_commit": null,
+        "dependent_file_count": 22,
+        "config_dependency_count": 1,
+        "shared_module_count": 18
+    },
+    {
+        "feature_id": "04fe791d-f7c1-4a51-bd81-ac78a3d9caf9",
+        "feature_name": "CreateDealWithExceedingLength",
+        "status": "NOT_MIGRATED",
+        "last_migrated_commit": null,
+        "dependent_file_count": 22,
+        "config_dependency_count": 1,
+        "shared_module_count": 18
+    },
+    {
+        "feature_id": "a6ea9860-3cd4-4744-a3ca-bcde1fcf83d7",
+        "feature_name": "CreateDealWithMaximumLength",
+        "status": "NOT_MIGRATED",
+        "last_migrated_commit": null,
+        "dependent_file_count": 22,
+        "config_dependency_count": 1,
+        "shared_module_count": 18
+    },
+    {
+        "feature_id": "c92b5ac2-b272-4c99-b171-8770d963924c",
+        "feature_name": "CreateDealWithoutMandatoryField",
+        "status": "NOT_MIGRATED",
+        "last_migrated_commit": null,
+        "dependent_file_count": 22,
+        "config_dependency_count": 1,
+        "shared_module_count": 18
+    },
+    {
+        "feature_id": "6c9db154-6c7c-49a3-84cf-df859054687f",
+        "feature_name": "Workflow",
+        "status": "NOT_MIGRATED",
+        "last_migrated_commit": null,
+        "dependent_file_count": 0,
+        "config_dependency_count": 0,
+        "shared_module_count": 0
+    },
+    {
+        "feature_id": "e179dfca-2365-4880-bdfe-b0819b2c6710",
+        "feature_name": "SmokeTest",
+        "status": "NOT_MIGRATED",
+        "last_migrated_commit": null,
+        "dependent_file_count": 21,
+        "config_dependency_count": 1,
+        "shared_module_count": 17
+    },
+    {
+        "feature_id": "687568f0-209e-40fd-b5ad-8e0f87deecdf",
+        "feature_name": "CreateTask",
+        "status": "NOT_MIGRATED",
+        "last_migrated_commit": null,
+        "dependent_file_count": 22,
+        "config_dependency_count": 1,
+        "shared_module_count": 17
+    }
+]

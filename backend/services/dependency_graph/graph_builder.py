@@ -13,7 +13,9 @@ class DependencyGraphBuilder:
         self.graph = defaultdict(set)
         self.reverse_graph = defaultdict(set)
 
-        for from_f, to_f in dependency_rows:
+        for row in dependency_rows:
+            from_f = row["from_file"]
+            to_f = row["to_file"]
             self.graph[from_f].add(to_f)
             self.reverse_graph[to_f].add(from_f)
 
