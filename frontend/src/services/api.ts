@@ -3,7 +3,8 @@ import type {
     MigrationSession,
     VerifyRepoResponse,
     CreateSessionResponse,
-    CreateSessionRequest
+    CreateSessionRequest,
+    AnalysisResponse
 } from '../types'
 
 const API_URL = 'http://localhost:8000'
@@ -30,8 +31,20 @@ export const api = {
         const response = await apiInstance.get(`/api/session/${id}`)
         return response.data
     },
+
     startMigration: async (id: string, featureIds: string[]) => {
         const response = await apiInstance.post(`/api/session/${id}/migrate`, featureIds)
+        return response.data
+    },
+
+    // Analysis Service
+    runAnalysis: async (sessionId: string): Promise<AnalysisResponse> => {
+        const response = await apiInstance.post(`/api/analysis/${sessionId}`)
+        return response.data
+    },
+
+    getAnalysis: async (sessionId: string): Promise<AnalysisResponse> => {
+        const response = await apiInstance.get(`/api/analysis/${sessionId}`)
         return response.data
     }
 }

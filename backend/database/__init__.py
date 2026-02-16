@@ -35,7 +35,8 @@ def init_db():
             feature_name TEXT,
             file_path TEXT,
             framework TEXT,
-            language TEXT
+            language TEXT,
+            hooks TEXT
         )
     ''')
 
@@ -55,7 +56,8 @@ def init_db():
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             session_id TEXT,
             file_path TEXT,
-            file_type TEXT
+            file_type TEXT,
+            package_name TEXT
         )
     ''')
 

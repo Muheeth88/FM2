@@ -3,10 +3,9 @@ import logging
 from models import CreateSessionRequest, CreateSessionResponse
 from database import get_db_connection
 from services.workspace_service import WorkspaceService
+from services.git_service import GitService
 
 logger = logging.getLogger(__name__)
-
-from services.git_service import GitService
 
 class SessionService:
     @staticmethod
@@ -21,51 +20,39 @@ class SessionService:
         status = "CREATED"
         
         try:
-            logger.info("Executing STEP 1: DB Insert")
-            # STEP 1: Insert session row in SQLite
+            logger.info("Executing STEP 1: Workspace Init")
+            # STEP 1: Initialize Workspace
+            ws = WorkspaceService.initialize_workspace(session_id)
+            repo_root = ws["source_path"]
+
+            logger.info("Executing STEP 2: Clone Source")
+            # STEP 2: Clone Source Repository
+            if not GitService.clone_repo(request.source_repo_url, repo_root, request.pat, request.base_branch):
+                logger.info("Clone with branch failed, trying default...")
+                if not GitService.clone_repo(request.source_repo_url, repo_root, request.pat):
+                    raise RuntimeError("Failed to clone source repository.")
+            
+            logger.info("Executing STEP 3: DB Insert")
+            # STEP 3: Insert session row in SQLite
             conn = get_db_connection()
             cursor = conn.cursor()
             
+            # New schema: id, repo_root, language, framework, build_system
             cursor.execute('''
                 INSERT INTO sessions (
-                    id, name, source_repo_url, target_repo_url, source_framework, target_framework, base_branch, pat, status
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    id, repo_root, language, framework, build_system
+                ) VALUES (?, ?, ?, ?, ?)
             ''', (
                 session_id,
-                request.name,
-                request.source_repo_url,
-                request.target_repo_url,
+                repo_root,
+                "unknown",
                 request.source_framework,
-                request.target_framework,
-                request.base_branch,
-                request.pat,
-                status
+                "unknown"
             ))
             
             conn.commit()
             conn.close()
             logger.info(f"Session created and saved to DB: {session_id}")
-
-            logger.info("Executing STEP 2: Workspace Init")
-            # STEP 2: Initialize Workspace
-            ws = WorkspaceService.initialize_workspace(session_id)
-            
-            logger.info("Executing STEP 3: Clone Source")
-            # STEP 3: Clone Source Repository
-            if not GitService.clone_repo(request.source_repo_url, ws["source_path"], request.pat, request.base_branch):
-                logger.info("Clone with branch failed, trying default...")
-                if not GitService.clone_repo(request.source_repo_url, ws["source_path"], request.pat):
-                    raise RuntimeError("Failed to clone source repository.")
-            
-            source_commit = GitService.get_head_commit(ws["source_path"])
-            
-            # Update sessions.source_commit
-            conn = get_db_connection()
-            cursor = conn.cursor()
-            cursor.execute("UPDATE sessions SET source_commit = ? WHERE id = ?", (source_commit, session_id))
-            conn.commit()
-            conn.close()
-            logger.info(f"Source repo cloned. Commit: {source_commit}")
 
             logger.info("Executing STEP 4: Clone/Init Target")
             # STEP 4: Clone / Initialize Target Repository

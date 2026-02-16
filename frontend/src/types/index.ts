@@ -38,3 +38,32 @@ export interface CreateSessionResponse {
     session_id: string;
     status: string;
 }
+
+export interface TestMethod {
+    name: string;
+    annotations: string[];
+}
+
+export interface Feature {
+    feature_name: string;
+    file_path: string;
+    tests: TestMethod[];
+    lifecycle_hooks: string[];
+    framework: string;
+    language: string;
+    status: 'MIGRATED' | 'NEEDS_UPDATE' | 'CONFLICTED' | 'NOT_MIGRATED';
+}
+
+export interface JavaFileDependency {
+    package: string | null;
+    imports: string[];
+    class_name: string | null;
+    type: string;
+}
+
+export interface AnalysisResponse {
+    session_id: string;
+    dependency_graph: Record<string, JavaFileDependency>;
+    features: Feature[];
+}
+
