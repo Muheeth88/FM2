@@ -50,6 +50,12 @@ export const api = {
         return response.data
     },
 
+    getFullAnalysis: async (sessionId: string): Promise<AnalysisResponse> => {
+        const response = await apiInstance.get(`/api/sessions/${sessionId}/full-analysis`)
+        return response.data
+    },
+
+
     getFeatureSummaries: async (sessionId: string): Promise<FeatureSummary[]> => {
         const response = await apiInstance.get(`/api/sessions/${sessionId}/features`)
         return response.data

@@ -66,15 +66,45 @@ export const DependencyViewer = ({ sessionId, initialData }: DependencyViewerPro
         );
     }
 
+    if (graph.status === 'ANALYZING' && !graph.dependency_graph) {
+        return (
+            <div className="flex flex-col items-center justify-center py-12 bg-blue-50 rounded-xl border border-blue-200">
+                <Loader2 className="animate-spin w-8 h-8 mb-4 text-blue-600" />
+                <h3 className="text-xl font-semibold text-blue-900">Analysis in Progress</h3>
+                <p className="mt-2 text-blue-700 text-center max-w-md">
+                    The background analysis task has been triggered. Results will appear here once scanning is complete.
+                </p>
+                <button
+                    onClick={async () => {
+                        setLoading(true);
+                        try {
+                            const data = await api.getFullAnalysis(sessionId);
+                            setGraph(data);
+                        } catch (err) {
+                            setError('Analysis still in progress or failed');
+                        } finally {
+                            setLoading(false);
+                        }
+                    }}
+                    className="mt-6 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors"
+                >
+                    Check Completion
+                </button>
+            </div>
+        );
+    }
+
+
     return (
         <div className="space-y-6">
             <h2 className="text-2xl font-bold flex items-center gap-3 text-gray-800">
                 <Box className="w-8 h-8 text-blue-600" /> Dependency Graph
             </h2>
             <div className="grid gap-6">
-                {Object.entries(graph.dependency_graph).map(([filePath, data]) => (
+                {graph.dependency_graph && Object.entries(graph.dependency_graph).map(([filePath, data]) => (
                     <div key={filePath} className="border border-gray-200 p-6 rounded-xl bg-white shadow-sm hover:shadow-md transition-shadow">
                         <div className="flex items-center gap-3 font-semibold text-lg text-gray-900 border-b pb-3 mb-3">
+
                             <FileCode className="w-5 h-5 text-gray-500" />
                             {data.class_name || filePath.split('/').pop()}
                             {data.type !== 'unknown' && (

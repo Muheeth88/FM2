@@ -69,10 +69,28 @@ export interface FeatureDetail {
     hooks: string[];
 }
 
+export interface JavaFileDependency {
+    imports: string[];
+    package: string | null;
+    type: string;
+    class_name?: string;
+}
+
 export interface AnalysisResponse {
     session_id: string;
     status: string;
+    repo_meta?: {
+        repo_root: string;
+        language: string;
+        framework: string;
+        build_system: string;
+    };
+    dependency_graph?: Record<string, JavaFileDependency>;
+    shared_modules?: string[];
 }
+
+
+
 
 export interface WSProgressMessage {
     type: 'progress' | 'log' | 'error' | 'complete';
