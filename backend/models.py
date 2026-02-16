@@ -71,3 +71,4 @@ class AnalysisResponse(BaseModel):
     driver_model: Optional[DriverModel]
     assertions: List[AssertionModel]
     config_files: List[ConfigFileModel]
+    shared_modules: List[str] = []

@@ -1,47 +1,74 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useMigrationStore } from './store/migrationStore'
+import { clsx } from 'clsx'
 import RepoConfiguration from './components/RepoConfiguration'
 import BranchSelection from './components/BranchSelection'
-import { DependencyViewer } from './components/DependencyViewer'
 import { FeatureTable } from './components/FeatureTable'
+import { AnalysisProgress } from './components/AnalysisProgress'
+import { useAnalysisStream } from './hooks/useAnalysisStream'
 import { api } from './services/api'
-import type { AnalysisResponse } from './types'
-import { Play, Table, Network, ChevronRight, Loader2 } from 'lucide-react'
+import type { FeatureSummary } from './types'
+import { Play, Table, Network, ChevronRight, Loader2, CheckCircle } from 'lucide-react'
 
 function App() {
   const { step, sessionId } = useMigrationStore();
-  const [analysisData, setAnalysisData] = useState<AnalysisResponse | null>(null);
+  const [analysisStatus, setAnalysisStatus] = useState<string | null>(null);
+  const [features, setFeatures] = useState<FeatureSummary[]>([]);
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<'features' | 'dependencies'>('features');
   const [selectedFeatures, setSelectedFeatures] = useState<string[]>([]);
 
+  // WebSocket stream hook — only enabled when analysis is running
+  const stream = useAnalysisStream(
+    sessionId,
+    analysisStatus === 'ANALYZING'
+  );
+
+  // When WebSocket reports completion, fetch features
+  useEffect(() => {
+    if (stream.isComplete && sessionId) {
+      setAnalysisStatus('ANALYZED');
+      setLoading(false);
+      api.getFeatureSummaries(sessionId).then(featureData => {
+        setFeatures(featureData);
+        setSelectedFeatures(featureData.map(f => f.feature_id));
+      });
+    }
+  }, [stream.isComplete, sessionId]);
+
+  // When WebSocket reports error, stop loading
+  useEffect(() => {
+    if (stream.error) {
+      setAnalysisStatus('FAILED');
+      setLoading(false);
+    }
+  }, [stream.error]);
+
   const handleAnalyze = async () => {
     if (!sessionId) return;
     setLoading(true);
+    setAnalysisStatus('ANALYZING');
+    stream.reset();
     try {
-      const data = await api.runAnalysis(sessionId);
-      setAnalysisData(data);
-      // Select all features by default
-      setSelectedFeatures(data.features.map(f => f.file_path));
+      await api.runAnalysis(sessionId);
     } catch (err) {
-      console.error("Analysis failed", err);
-    } finally {
+      console.error("Analysis trigger failed", err);
       setLoading(false);
+      setAnalysisStatus(null);
     }
   };
 
-  const toggleFeature = (filePath: string) => {
+  const toggleFeature = (featureId: string) => {
     setSelectedFeatures(prev =>
-      prev.includes(filePath) ? prev.filter(f => f !== filePath) : [...prev, filePath]
+      prev.includes(featureId) ? prev.filter(f => f !== featureId) : [...prev, featureId]
     );
   };
 
   const toggleAll = () => {
-    if (!analysisData) return;
-    if (selectedFeatures.length === analysisData.features.length) {
+    if (selectedFeatures.length === features.length) {
       setSelectedFeatures([]);
     } else {
-      setSelectedFeatures(analysisData.features.map(f => f.file_path));
+      setSelectedFeatures(features.map(f => f.feature_id));
     }
   };
 
@@ -63,23 +90,43 @@ function App() {
 
           {step === 3 && (
             <div className="space-y-8">
-              {!analysisData ? (
-                <div className="text-center bg-white p-12 rounded-2xl shadow-sm border border-gray-200">
-                  <div className="bg-green-50 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6">
-                    <CheckCircle className="w-8 h-8 text-green-600" />
-                  </div>
-                  <h2 className="text-2xl font-bold text-gray-900">Session Initiated!</h2>
-                  <p className="text-gray-600 mt-2 max-w-md mx-auto">
-                    The source and target repositories are ready. Click below to start the deep analysis of your test suite.
-                  </p>
-                  <button
-                    onClick={handleAnalyze}
-                    disabled={loading}
-                    className="mt-8 flex items-center gap-2 px-8 py-4 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-bold rounded-xl shadow-lg transition-all transform hover:scale-105 mx-auto"
-                  >
-                    {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Play className="w-5 h-5" />}
-                    {loading ? "Analyzing..." : "Analyze Source Code"}
-                  </button>
+              {analysisStatus !== 'ANALYZED' ? (
+                <div className="space-y-6">
+                  {/* Show trigger button if not started or failed */}
+                  {(!analysisStatus || analysisStatus === 'FAILED') && (
+                    <div className="text-center bg-white p-12 rounded-2xl shadow-sm border border-gray-200">
+                      <div className="bg-green-50 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <CheckCircle className="w-8 h-8 text-green-600" />
+                      </div>
+                      <h2 className="text-2xl font-bold text-gray-900">
+                        Session Initiated!
+                      </h2>
+                      <p className="text-gray-600 mt-2 max-w-md mx-auto">
+                        The source and target repositories are ready. Click below to start the deep analysis of your test suite.
+                      </p>
+                      <button
+                        onClick={handleAnalyze}
+                        disabled={loading}
+                        className="mt-8 flex items-center gap-2 px-8 py-4 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-bold rounded-xl shadow-lg transition-all transform hover:scale-105 mx-auto"
+                      >
+                        {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Play className="w-5 h-5" />}
+                        {loading ? "Starting..." : analysisStatus === 'FAILED' ? "Retry Analysis" : "Analyze Source Code"}
+                      </button>
+                    </div>
+                  )}
+
+                  {/* Live progress panel during analysis */}
+                  {analysisStatus === 'ANALYZING' && (
+                    <AnalysisProgress
+                      step={stream.step}
+                      progress={stream.progress}
+                      logs={stream.logs}
+                      error={stream.error}
+                      trace={stream.trace}
+                      isComplete={stream.isComplete}
+                      isConnected={stream.isConnected}
+                    />
+                  )}
                 </div>
               ) : (
                 <div className="space-y-6">
@@ -117,13 +164,16 @@ function App() {
                   <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-200">
                     {activeTab === 'features' ? (
                       <FeatureTable
-                        features={analysisData.features}
+                        sessionId={sessionId!}
+                        features={features}
                         selectedFeatures={selectedFeatures}
                         onToggleFeature={toggleFeature}
                         onToggleAll={toggleAll}
                       />
                     ) : (
-                      <DependencyViewer sessionId={sessionId!} initialData={analysisData} />
+                      <div className="p-12 text-center text-gray-500">
+                        Dependency graph view is being updated for the new analysis layer.
+                      </div>
                     )}
                   </div>
                 </div>
@@ -136,13 +186,4 @@ function App() {
   )
 }
 
-function CheckCircle({ className }: { className?: string }) {
-  return (
-    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-    </svg>
-  );
-}
-
-import { clsx } from 'clsx';
 export default App

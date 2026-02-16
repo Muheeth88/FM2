@@ -1,8 +1,9 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 import logging
 from database import init_db
 from routes import git, sessions, analysis
+from services.websocket_manager import ws_manager
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -29,3 +30,19 @@ app.include_router(analysis.router)
 @app.get("/")
 async def root():
     return {"message": "QE Framework Migration System API is running"}
+
+@app.websocket("/ws/sessions/{session_id}")
+async def session_stream(websocket: WebSocket, session_id: str):
+    """WebSocket endpoint for real-time analysis progress streaming."""
+    print(f"WS connection attempt for session: {session_id}")
+    try:
+        await ws_manager.connect(session_id, websocket)
+        print(f"WS connection accepted for session: {session_id}")
+        while True:
+            await websocket.receive_text()
+    except WebSocketDisconnect:
+        print(f"WS disconnected for session: {session_id}")
+        ws_manager.disconnect(session_id)
+    except Exception as e:
+        print(f"WS error for session {session_id}: {str(e)}")
+        ws_manager.disconnect(session_id)

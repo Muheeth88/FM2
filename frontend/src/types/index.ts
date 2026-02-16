@@ -44,26 +44,43 @@ export interface TestMethod {
     annotations: string[];
 }
 
-export interface Feature {
+export interface FeatureSummary {
+    feature_id: string;
     feature_name: string;
-    file_path: string;
-    tests: TestMethod[];
-    lifecycle_hooks: string[];
-    framework: string;
-    language: string;
     status: 'MIGRATED' | 'NEEDS_UPDATE' | 'CONFLICTED' | 'NOT_MIGRATED';
+    dependent_file_count: number;
+    config_dependency_count: number;
+    shared_module_count: number;
+    last_migrated_commit: string | null;
 }
 
-export interface JavaFileDependency {
-    package: string | null;
-    imports: string[];
-    class_name: string | null;
-    type: string;
+export interface FeatureDetail {
+    feature_id: string;
+    feature_name: string;
+    file_path: string;
+    status: string;
+    framework: string;
+    language: string;
+    last_migrated_commit: string | null;
+    tests: TestMethod[];
+    dependency_files: string[];
+    shared_modules: string[];
+    config_dependencies: string[];
+    hooks: string[];
 }
 
 export interface AnalysisResponse {
     session_id: string;
-    dependency_graph: Record<string, JavaFileDependency>;
-    features: Feature[];
+    status: string;
+}
+
+export interface WSProgressMessage {
+    type: 'progress' | 'log' | 'error' | 'complete';
+    session_id: string;
+    step?: string;
+    progress?: number;
+    message?: string;
+    error?: string;
+    trace?: string;
 }
 

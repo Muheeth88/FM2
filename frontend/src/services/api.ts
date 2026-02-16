@@ -4,7 +4,9 @@ import type {
     VerifyRepoResponse,
     CreateSessionResponse,
     CreateSessionRequest,
-    AnalysisResponse
+    AnalysisResponse,
+    FeatureSummary,
+    FeatureDetail
 } from '../types'
 
 const API_URL = 'http://localhost:8000'
@@ -39,12 +41,22 @@ export const api = {
 
     // Analysis Service
     runAnalysis: async (sessionId: string): Promise<AnalysisResponse> => {
-        const response = await apiInstance.post(`/api/analysis/${sessionId}`)
+        const response = await apiInstance.post(`/api/sessions/${sessionId}/analyze`)
         return response.data
     },
 
-    getAnalysis: async (sessionId: string): Promise<AnalysisResponse> => {
-        const response = await apiInstance.get(`/api/analysis/${sessionId}`)
+    getAnalysisStatus: async (sessionId: string): Promise<{ session_id: string, status: string }> => {
+        const response = await apiInstance.get(`/api/sessions/${sessionId}/status`)
+        return response.data
+    },
+
+    getFeatureSummaries: async (sessionId: string): Promise<FeatureSummary[]> => {
+        const response = await apiInstance.get(`/api/sessions/${sessionId}/features`)
+        return response.data
+    },
+
+    getFeatureDetail: async (sessionId: string, featureId: string): Promise<FeatureDetail> => {
+        const response = await apiInstance.get(`/api/sessions/${sessionId}/features/${featureId}`)
         return response.data
     }
 }
