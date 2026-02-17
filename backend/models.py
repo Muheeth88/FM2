@@ -30,6 +30,10 @@ class CreateSessionRequest(BaseModel):
     name: str
     source_repo_url: str
     target_repo_url: Optional[str] = None
+    target_repo_mode: str = "existing" # "existing" or "new"
+    target_repo_name: Optional[str] = None
+    target_repo_owner: Optional[str] = None
+    target_repo_visibility: Optional[str] = "public"
     source_framework: str
     target_framework: str
     base_branch: str
@@ -89,3 +93,19 @@ class AnalysisResponse(BaseModel):
     assertions: List[AssertionModel]
     config_files: List[ConfigFileModel]
     shared_modules: List[str] = []
+
+class SelectFeaturesRequest(BaseModel):
+    session_id: str
+    feature_ids: List[str]
+
+class CreateRunRequest(BaseModel):
+    session_id: str
+
+class MigrationRunResponse(BaseModel):
+    run_id: str
+    session_id: str
+    branch_name: str
+    target_repo_url: str
+    base_branch: str
+    status: str
+    started_at: str

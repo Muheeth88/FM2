@@ -16,6 +16,8 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [selectedFeatures, setSelectedFeatures] = useState<string[]>([]);
 
+  const [processingMigration, setProcessingMigration] = useState(false);
+
   // WebSocket stream hook — only enabled when analysis is running
   const stream = useAnalysisStream(
     sessionId,
@@ -55,6 +57,26 @@ function App() {
       setAnalysisStatus(null);
     }
   };
+
+  const handleProcessMigration = async () => {
+    if (!sessionId || selectedFeatures.length === 0) return;
+    setProcessingMigration(true);
+    try {
+      // Step 7: Select Features
+      await api.selectFeatures(sessionId, selectedFeatures);
+
+      // Step 8: Create Migration Branch
+      const run = await api.createMigrationRun(sessionId);
+
+      alert(`Migration branch created: ${run.branch_name}\nTarget Repo: ${run.target_repo_url}\nBase Branch: ${run.base_branch}\nMigration Run ID: ${run.run_id}`);
+      // In a real app, we'd move to Step 4 (Conversion Progress)
+    } catch (err: any) {
+      console.error("Migration process failed", err);
+      alert("Failed to start migration: " + (err.response?.data?.detail || err.message));
+    } finally {
+      setProcessingMigration(false);
+    }
+  }
 
   const toggleFeature = (featureId: string) => {
     setSelectedFeatures(prev =>
@@ -135,11 +157,13 @@ function App() {
                     </h2>
 
                     <button
-                      disabled={selectedFeatures.length === 0}
-                      className="flex items-center gap-2 px-6 py-3 bg-green-600 hover:bg-green-700 disabled:bg-gray-300 text-white font-bold rounded-xl shadow-md transition-all"
+                      onClick={handleProcessMigration}
+                      disabled={selectedFeatures.length === 0 || processingMigration}
+                      className="flex items-center gap-2 px-6 py-3 bg-green-600 hover:bg-green-700 disabled:bg-gray-300 text-white font-bold rounded-xl shadow-md transition-all disabled:cursor-not-allowed"
                     >
-                      Process Migration ({selectedFeatures.length})
-                      <ChevronRight className="w-5 h-5" />
+                      {processingMigration ? <Loader2 className="w-5 h-5 animate-spin" /> : null}
+                      {processingMigration ? "Preparing Branch..." : `Process Migration (${selectedFeatures.length})`}
+                      {!processingMigration && <ChevronRight className="w-5 h-5" />}
                     </button>
                   </div>
 

@@ -17,7 +17,5 @@ async def verify_repo_and_fetch_branches(request: VerifyRepoRequest):
         raise HTTPException(status_code=400, detail="Could not access repository. Check URL and PAT.")
     
     branches = GitService.get_branches(request.repo_url, request.pat)
-    if not branches:
-        raise HTTPException(status_code=400, detail="Could not fetch branches. Ensure the repository is not empty.")
     
     return VerifyRepoResponse(branches=branches, message="Repository verified successfully")

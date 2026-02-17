@@ -5,6 +5,10 @@ interface RepoDetails {
     sessionName: string;
     repoUrl: string;
     targetRepoUrl: string;
+    targetRepoMode: 'existing' | 'new';
+    targetRepoName?: string;
+    targetRepoOwner?: string;
+    targetRepoVisibility?: 'public' | 'private';
     pat: string;
     sourceFramework: string;
     targetFramework: string;
@@ -32,6 +36,10 @@ const initialState = {
         sessionName: '',
         repoUrl: '',
         targetRepoUrl: '',
+        targetRepoMode: 'existing' as 'existing' | 'new',
+        targetRepoName: '',
+        targetRepoOwner: '',
+        targetRepoVisibility: 'public' as 'public' | 'private',
         pat: '',
         sourceFramework: '',
         targetFramework: '',

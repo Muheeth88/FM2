@@ -33,6 +33,10 @@ export interface CreateSessionRequest {
     name: string;
     source_repo_url: string;
     target_repo_url?: string;
+    target_repo_mode: 'existing' | 'new';
+    target_repo_name?: string;
+    target_repo_owner?: string;
+    target_repo_visibility?: 'public' | 'private';
     source_framework: string;
     target_framework: string;
     base_branch: string;

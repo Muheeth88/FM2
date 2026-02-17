@@ -39,6 +39,21 @@ export const api = {
         return response.data
     },
 
+    selectFeatures: async (sessionId: string, featureIds: string[]): Promise<{ status: string }> => {
+        const response = await apiInstance.post('/api/session/select-features', {
+            session_id: sessionId,
+            feature_ids: featureIds
+        })
+        return response.data
+    },
+
+    createMigrationRun: async (sessionId: string): Promise<{ run_id: string, branch_name: string, target_repo_url: string, base_branch: string }> => {
+        const response = await apiInstance.post('/api/session/create-run', {
+            session_id: sessionId
+        })
+        return response.data
+    },
+
     // Analysis Service
     runAnalysis: async (sessionId: string): Promise<AnalysisResponse> => {
         const response = await apiInstance.post(`/api/sessions/${sessionId}/analyze`)

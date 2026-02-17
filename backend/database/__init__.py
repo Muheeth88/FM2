@@ -23,6 +23,12 @@ def init_db():
             language TEXT,
             framework TEXT,
             build_system TEXT,
+            source_repo_url TEXT,
+            target_repo_url TEXT,
+            target_repo_mode TEXT,
+            target_repo_name TEXT,
+            target_repo_owner TEXT,
+            base_branch TEXT,
             status TEXT DEFAULT 'PENDING',
             current_step TEXT,
             progress INTEGER DEFAULT 0,
@@ -121,7 +127,16 @@ def init_db():
             source_commit TEXT NOT NULL,
             snapshot_hash TEXT NOT NULL,
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-        )''', "feature_snapshots")
+        )''', "feature_snapshots"),
+        ('''CREATE TABLE IF NOT EXISTS migration_runs (
+            id TEXT PRIMARY KEY,
+            session_id TEXT NOT NULL,
+            branch_name TEXT,
+            status TEXT DEFAULT 'RUNNING',
+            error_message TEXT,
+            started_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            completed_at TIMESTAMP
+        )''', "migration_runs")
     ]
 
     for sql, name in tables:
@@ -139,6 +154,12 @@ def init_db():
         ("ALTER TABLE sessions ADD COLUMN error_message TEXT", "sessions.error_message"),
         ("ALTER TABLE sessions ADD COLUMN error_trace TEXT", "sessions.error_trace"),
         ("ALTER TABLE sessions ADD COLUMN updated_at TIMESTAMP", "sessions.updated_at"),
+        ("ALTER TABLE sessions ADD COLUMN source_repo_url TEXT", "sessions.source_repo_url"),
+        ("ALTER TABLE sessions ADD COLUMN target_repo_url TEXT", "sessions.target_repo_url"),
+        ("ALTER TABLE sessions ADD COLUMN target_repo_mode TEXT", "sessions.target_repo_mode"),
+        ("ALTER TABLE sessions ADD COLUMN target_repo_name TEXT", "sessions.target_repo_name"),
+        ("ALTER TABLE sessions ADD COLUMN target_repo_owner TEXT", "sessions.target_repo_owner"),
+        ("ALTER TABLE sessions ADD COLUMN base_branch TEXT", "sessions.base_branch"),
         ("ALTER TABLE features ADD COLUMN status TEXT DEFAULT 'NOT_MIGRATED'", "features.status"),
         ("ALTER TABLE features ADD COLUMN last_migrated_commit TEXT", "features.last_migrated_commit"),
         ("ALTER TABLE features ADD COLUMN hooks TEXT", "features.hooks"),
