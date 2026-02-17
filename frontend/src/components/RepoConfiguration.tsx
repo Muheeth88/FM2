@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { FRAMEWORK_DATA } from '../constants/frameworks';
 import { api } from '../services/api';
 import { useMigrationStore } from '../store/migrationStore';
