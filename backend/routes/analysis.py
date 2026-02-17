@@ -5,8 +5,10 @@ from services.websocket_manager import ws_manager
 from database.db import Database
 from models import (
     AnalysisResponse, FeatureModel, JavaFileDependency, TestMethod,
-    BuildDependency, DriverModel, AssertionModel, ConfigFileModel
+    BuildDependency, DriverModel, AssertionModel, ConfigFileModel,
+    FeatureSummaryResponse
 )
+from typing import List
 import logging
 import json
 import asyncio
@@ -54,10 +56,10 @@ async def get_session_status(session_id: str):
         raise HTTPException(status_code=404, detail="Session not found")
     return {"session_id": session_id, "status": session["status"]}
 
-@router.get("/{session_id}/features")
+@router.get("/{session_id}/features", response_model=List[FeatureSummaryResponse])
 async def get_features(session_id: str):
     """
-    Returns a summarized list of features for the UI table.
+    Returns features with full file arrays (test_files, dependent_files, config_files, shared_modules).
     """
     return query_service.get_feature_summaries(session_id)
 

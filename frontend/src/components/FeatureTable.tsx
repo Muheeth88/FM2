@@ -101,7 +101,7 @@ export const FeatureTable = ({ sessionId, features, selectedFeatures, onToggleFe
                                         <div className="flex items-center gap-3">
                                             {isExpanded ? <ChevronDown className="w-4 h-4 text-gray-400" /> : <ChevronRight className="w-4 h-4 text-gray-400" />}
                                             <div className="flex flex-col">
-                                                <span className="text-sm font-semibold text-gray-900">{feature.feature_name}</span>
+                                                <span className="text-sm font-semibold text-gray-900">{feature.name}</span>
                                             </div>
                                         </div>
                                     </td>
@@ -110,23 +110,23 @@ export const FeatureTable = ({ sessionId, features, selectedFeatures, onToggleFe
                                     </td>
                                     <td className="px-6 py-4 text-center" onClick={() => toggleRow(feature.feature_id)}>
                                         <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded-md text-xs font-medium bg-blue-50 text-blue-700">
-                                            <Hash className="w-3 h-3" /> {feature.dependent_file_count}
+                                            <Hash className="w-3 h-3" /> {feature.dependent_count}
                                         </span>
                                     </td>
                                     <td className="px-6 py-4 text-center" onClick={() => toggleRow(feature.feature_id)}>
                                         <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded-md text-xs font-medium bg-purple-50 text-purple-700">
-                                            <Settings className="w-3 h-3" /> {feature.config_dependency_count}
+                                            <Settings className="w-3 h-3" /> {feature.config_count}
                                         </span>
                                     </td>
                                     <td className="px-6 py-4 text-center" onClick={() => toggleRow(feature.feature_id)}>
                                         <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded-md text-xs font-medium bg-amber-50 text-amber-700">
-                                            <Layers className="w-3 h-3" /> {feature.shared_module_count}
+                                            <Layers className="w-3 h-3" /> {feature.shared_count}
                                         </span>
                                     </td>
                                     <td className="px-6 py-4" onClick={() => toggleRow(feature.feature_id)}>
                                         <span className="text-xs text-gray-500 flex items-center gap-1.5">
                                             <Calendar className="w-3.5 h-3.5" />
-                                            {feature.last_migrated_commit ? feature.last_migrated_commit.substring(0, 7) : 'Never'}
+                                            {feature.last_migrated ? feature.last_migrated.substring(0, 7) : 'Never'}
                                         </span>
                                     </td>
                                 </tr>
@@ -143,30 +143,40 @@ export const FeatureTable = ({ sessionId, features, selectedFeatures, onToggleFe
                                                         <h4 className="text-xs font-bold uppercase tracking-wider text-gray-400">Dependency Files</h4>
                                                         <ul className="space-y-2">
                                                             {detail.dependency_files.map(file => (
-                                                                <li key={file} className="flex items-center gap-2 text-sm text-gray-600 bg-white p-2 rounded border border-gray-100">
-                                                                    <FileText className="w-4 h-4 text-blue-400" />
-                                                                    {file.split(/[\/\\]/).pop()}
-                                                                    <span className="text-[10px] text-gray-400 font-mono truncate">{file}</span>
+                                                                <li key={file.path} className="flex flex-col gap-1 text-sm text-gray-600 bg-white p-2 rounded border border-gray-100">
+                                                                    <div className="flex items-center gap-2">
+                                                                        <FileText className="w-4 h-4 text-blue-400" />
+                                                                        <span className="font-medium text-gray-700">{file.path.split(/[\/\\]/).pop()}</span>
+                                                                    </div>
+                                                                    <span className="text-[10px] text-gray-400 font-mono truncate pl-6">{file.path}</span>
                                                                 </li>
                                                             ))}
                                                             {detail.dependency_files.length === 0 && <li className="text-sm text-gray-400 italic">No direct dependencies</li>}
                                                         </ul>
                                                     </div>
                                                     <div className="space-y-6">
-                                                        <div>
-                                                            <h4 className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-4">Config & Shared</h4>
-                                                            <div className="flex flex-wrap gap-2">
+                                                        <div className="space-y-4">
+                                                            <h4 className="text-xs font-bold uppercase tracking-wider text-gray-400">Config & Shared</h4>
+                                                            <ul className="space-y-2">
                                                                 {detail.config_dependencies.map(cfg => (
-                                                                    <span key={cfg} className="px-2 py-1 bg-purple-100 text-purple-700 rounded text-[11px] font-medium border border-purple-200">
-                                                                        {cfg.split(/[\/\\]/).pop()}
-                                                                    </span>
+                                                                    <li key={cfg.path} className="flex flex-col gap-1 text-sm text-purple-700 bg-purple-50/50 p-2 rounded border border-purple-100">
+                                                                        <div className="flex items-center gap-2">
+                                                                            <Settings className="w-4 h-4 text-purple-400" />
+                                                                            <span className="font-medium">{cfg.path.split(/[\/\\]/).pop()}</span>
+                                                                        </div>
+                                                                        <span className="text-[10px] text-gray-400 font-mono truncate pl-6">{cfg.path}</span>
+                                                                    </li>
                                                                 ))}
                                                                 {detail.shared_modules.map(mod => (
-                                                                    <span key={mod} className="px-2 py-1 bg-amber-100 text-amber-700 rounded text-[11px] font-medium border border-amber-200">
-                                                                        {mod.split(/[\/\\]/).pop()}
-                                                                    </span>
+                                                                    <li key={mod.path} className="flex flex-col gap-1 text-sm text-amber-700 bg-amber-50/50 p-2 rounded border border-amber-100">
+                                                                        <div className="flex items-center gap-2">
+                                                                            <Layers className="w-4 h-4 text-amber-400" />
+                                                                            <span className="font-medium">{mod.path.split(/[\/\\]/).pop()}</span>
+                                                                        </div>
+                                                                        <span className="text-[10px] text-gray-400 font-mono truncate pl-6">{mod.path}</span>
+                                                                    </li>
                                                                 ))}
-                                                            </div>
+                                                            </ul>
                                                         </div>
                                                         <div>
                                                             <h4 className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-4">Tests Detected</h4>

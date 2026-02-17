@@ -1,3 +1,8 @@
+export interface FileRef {
+    path: string;
+    hash?: string;
+}
+
 export interface RepoDetails {
     repo_url: string;
     pat?: string;
@@ -46,12 +51,12 @@ export interface TestMethod {
 
 export interface FeatureSummary {
     feature_id: string;
-    feature_name: string;
+    name: string;
     status: 'MIGRATED' | 'NEEDS_UPDATE' | 'CONFLICTED' | 'NOT_MIGRATED';
-    dependent_file_count: number;
-    config_dependency_count: number;
-    shared_module_count: number;
-    last_migrated_commit: string | null;
+    dependent_count: number;
+    config_count: number;
+    shared_count: number;
+    last_migrated: string | null;
 }
 
 export interface FeatureDetail {
@@ -63,9 +68,9 @@ export interface FeatureDetail {
     language: string;
     last_migrated_commit: string | null;
     tests: TestMethod[];
-    dependency_files: string[];
-    shared_modules: string[];
-    config_dependencies: string[];
+    dependency_files: FileRef[];
+    shared_modules: FileRef[];
+    config_dependencies: FileRef[];
     hooks: string[];
 }
 

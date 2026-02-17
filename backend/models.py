@@ -1,6 +1,23 @@
 from pydantic import BaseModel
 from typing import Optional, List, Dict
 
+class FileRef(BaseModel):
+    path: str
+    hash: Optional[str] = None
+
+class FeatureSummaryResponse(BaseModel):
+    feature_id: str
+    name: str
+    status: str = "NOT_MIGRATED"
+    last_migrated: Optional[str] = None
+    dependent_count: int = 0
+    config_count: int = 0
+    shared_count: int = 0
+    test_files: List[FileRef] = []
+    dependent_files: List[FileRef] = []
+    config_files: List[FileRef] = []
+    shared_modules: List[FileRef] = []
+
 class VerifyRepoRequest(BaseModel):
     repo_url: str
     pat: Optional[str] = None

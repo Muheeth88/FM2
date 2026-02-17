@@ -1,6 +1,8 @@
 import uuid
 import traceback
 import asyncio
+import hashlib
+import os
 from datetime import datetime
 from typing import Optional, Dict, Set, List
 
@@ -36,6 +38,24 @@ class RepositoryAnalyzerService:
     def __init__(self, db: Database, ws_manager=None):
         self.db = db
         self.ws_manager = ws_manager
+
+    # ==========================================================
+    # UTILITY
+    # ==========================================================
+
+    def _compute_file_hash(self, repo_root: str, relative_path: str) -> Optional[str]:
+        """Compute SHA-256 hash of a file given its relative path within the repo."""
+        try:
+            abs_path = os.path.join(repo_root, relative_path.replace("/", os.sep))
+            if not os.path.isfile(abs_path):
+                return None
+            h = hashlib.sha256()
+            with open(abs_path, "rb") as f:
+                for chunk in iter(lambda: f.read(8192), b""):
+                    h.update(chunk)
+            return h.hexdigest()
+        except Exception:
+            return None
 
     # ==========================================================
     # PROGRESS EMISSION
@@ -271,6 +291,11 @@ class RepositoryAnalyzerService:
                 "thread_model": driver_row["thread_model"] if driver_row else None
             })
 
+            # 11. Feature Status
+            # --------------------------
+            await self._emit_progress(session_id, "Status Detection", 98, "Determining feature migration status")
+            await self._update_feature_statuses(session_id, repo_root)
+
             # FINAL: Set status to ANALYZED
             self.db.execute("UPDATE sessions SET status = 'ANALYZED', progress = 100 WHERE id = ?", (session_id,))
             await self._emit_complete(session_id)
@@ -357,14 +382,15 @@ class RepositoryAnalyzerService:
             self.db.execute(
                 """
                 INSERT INTO features
-                (id, session_id, feature_name, file_path, framework, language, hooks)
-                VALUES (?, ?, ?, ?, ?, ?, ?)
+                (id, session_id, feature_name, file_path, file_hash, framework, language, hooks)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
                 """,
                 (
                     feature_id,
                     session_id,
                     feature["feature_name"],
                     norm_path,
+                    self._compute_file_hash(repo_root, norm_path),
                     feature["framework"],
                     feature["language"],
                     str(feature.get("lifecycle_hooks", []))
@@ -525,22 +551,22 @@ class RepositoryAnalyzerService:
 
             for dep in closure:
                 self.db.execute(
-                    "INSERT INTO feature_dependencies (session_id, feature_id, file_path) VALUES (?, ?, ?)",
-                    (session_id, feature_id, dep)
+                    "INSERT INTO feature_dependencies (session_id, feature_id, file_path, file_hash) VALUES (?, ?, ?, ?)",
+                    (session_id, feature_id, dep, self._compute_file_hash(repo_root, dep))
                 )
 
             shared_for_feature = shared_mapper.map_feature_shared(closure)
             for s in shared_for_feature:
                 self.db.execute(
-                    "INSERT INTO feature_shared_modules (session_id, feature_id, file_path) VALUES (?, ?, ?)",
-                    (session_id, feature_id, s)
+                    "INSERT INTO feature_shared_modules (session_id, feature_id, file_path, file_hash) VALUES (?, ?, ?, ?)",
+                    (session_id, feature_id, s, self._compute_file_hash(repo_root, s))
                 )
 
             config_for_feature = config_mapper.map_feature_configs(closure)
             for c in config_for_feature:
                 self.db.execute(
-                    "INSERT INTO feature_config_dependencies (session_id, feature_id, config_file) VALUES (?, ?, ?)",
-                    (session_id, feature_id, c)
+                    "INSERT INTO feature_config_dependencies (session_id, feature_id, config_file, file_hash) VALUES (?, ?, ?, ?)",
+                    (session_id, feature_id, c, self._compute_file_hash(repo_root, c))
                 )
 
             hooks = hook_mapper.collect_feature_hooks(
@@ -599,3 +625,78 @@ class RepositoryAnalyzerService:
                 driver_info.get("thread_model")
             )
         )
+
+    # ==========================================================
+    # STEP 6: STATUS DETECTION
+    # ==========================================================
+
+    def _compute_feature_snapshot_hash(self, feature_id: str) -> str:
+        """
+        Compute a deterministic hash for a feature based on its test file,
+        dependencies, and config files.
+        """
+        hashes = []
+
+        # 1. Main test file hash
+        feat = self.db.fetchone("SELECT file_hash FROM features WHERE id = ?", (feature_id,))
+        if feat and feat["file_hash"]:
+            hashes.append(feat["file_hash"])
+
+        # 2. Dependency hashes
+        deps = self.db.fetchall("SELECT file_hash FROM feature_dependencies WHERE feature_id = ?", (feature_id,))
+        for d in deps:
+            if d["file_hash"]:
+                hashes.append(d["file_hash"])
+
+        # 3. Config hashes
+        configs = self.db.fetchall("SELECT file_hash FROM feature_config_dependencies WHERE feature_id = ?", (feature_id,))
+        for c in configs:
+            if c["file_hash"]:
+                hashes.append(c["file_hash"])
+
+        if not hashes:
+            return ""
+
+        hashes.sort()
+        combined = "".join(hashes)
+        return hashlib.sha256(combined.encode()).hexdigest()
+
+    async def _update_feature_statuses(self, session_id: str, repo_root: str):
+        """
+        Update the migration status of features based on structural snapshots.
+        """
+        from services.git_service import GitService
+        from services.workspace_service import WorkspaceService
+        
+        current_commit = GitService.get_head_commit(repo_root)
+        
+        # Get target root to check for existence
+        session_path = WorkspaceService.get_session_path(session_id)
+        target_root = os.path.join(session_path, "target")
+
+        features = self.db.fetchall("SELECT id, feature_name, file_path FROM features WHERE session_id = ?", (session_id,))
+
+        for feat in features:
+            f_id = feat["id"]
+            new_hash = self._compute_feature_snapshot_hash(f_id)
+            
+            # Fetch previous snapshot
+            prev = self.db.fetchone(
+                "SELECT snapshot_hash, source_commit FROM feature_snapshots WHERE feature_id = ? ORDER BY created_at DESC LIMIT 1",
+                (f_id,)
+            )
+
+            status = "NOT_MIGRATED"
+            if prev:
+                if new_hash == prev["snapshot_hash"]:
+                    status = "MIGRATED"
+                else:
+                    status = "NEEDS_UPDATE"
+
+            # Update features table
+            self.db.execute(
+                "UPDATE features SET snapshot_hash = ?, source_commit = ?, status = ? WHERE id = ?",
+                (new_hash, current_commit, status, f_id)
+            )
+
+            await self._emit_log(session_id, f"Feature '{feat['feature_name']}' status: {status}")

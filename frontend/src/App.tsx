@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react'
 import { useMigrationStore } from './store/migrationStore'
-import { clsx } from 'clsx'
 import RepoConfiguration from './components/RepoConfiguration'
 import BranchSelection from './components/BranchSelection'
 import { FeatureTable } from './components/FeatureTable'
@@ -8,14 +7,13 @@ import { AnalysisProgress } from './components/AnalysisProgress'
 import { useAnalysisStream } from './hooks/useAnalysisStream'
 import { api } from './services/api'
 import type { FeatureSummary } from './types'
-import { Play, Table, Network, ChevronRight, Loader2, CheckCircle } from 'lucide-react'
+import { Play, Table, ChevronRight, Loader2, CheckCircle } from 'lucide-react'
 
 function App() {
   const { step, sessionId } = useMigrationStore();
   const [analysisStatus, setAnalysisStatus] = useState<string | null>(null);
   const [features, setFeatures] = useState<FeatureSummary[]>([]);
   const [loading, setLoading] = useState(false);
-  const [activeTab, setActiveTab] = useState<'features' | 'dependencies'>('features');
   const [selectedFeatures, setSelectedFeatures] = useState<string[]>([]);
 
   // WebSocket stream hook — only enabled when analysis is running
@@ -31,7 +29,7 @@ function App() {
       setLoading(false);
       api.getFeatureSummaries(sessionId).then(featureData => {
         setFeatures(featureData);
-        setSelectedFeatures(featureData.map(f => f.feature_id));
+        setSelectedFeatures([]);
       });
     }
   }, [stream.isComplete, sessionId]);
@@ -131,26 +129,10 @@ function App() {
               ) : (
                 <div className="space-y-6">
                   <div className="flex items-center justify-between">
-                    <div className="flex bg-gray-200/50 p-1 rounded-xl w-fit">
-                      <button
-                        onClick={() => setActiveTab('features')}
-                        className={clsx(
-                          "flex items-center gap-2 px-6 py-2.5 rounded-lg text-sm font-semibold transition-all",
-                          activeTab === 'features' ? "bg-white text-blue-600 shadow-sm" : "text-gray-600 hover:text-gray-900"
-                        )}
-                      >
-                        <Table className="w-4 h-4" /> Features
-                      </button>
-                      <button
-                        onClick={() => setActiveTab('dependencies')}
-                        className={clsx(
-                          "flex items-center gap-2 px-6 py-2.5 rounded-lg text-sm font-semibold transition-all",
-                          activeTab === 'dependencies' ? "bg-white text-blue-600 shadow-sm" : "text-gray-600 hover:text-gray-900"
-                        )}
-                      >
-                        <Network className="w-4 h-4" /> Dependency Graph
-                      </button>
-                    </div>
+                    <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
+                      <Table className="w-5 h-5 text-blue-600" />
+                      Detected Features
+                    </h2>
 
                     <button
                       disabled={selectedFeatures.length === 0}
@@ -162,19 +144,13 @@ function App() {
                   </div>
 
                   <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-200">
-                    {activeTab === 'features' ? (
-                      <FeatureTable
-                        sessionId={sessionId!}
-                        features={features}
-                        selectedFeatures={selectedFeatures}
-                        onToggleFeature={toggleFeature}
-                        onToggleAll={toggleAll}
-                      />
-                    ) : (
-                      <div className="p-12 text-center text-gray-500">
-                        Dependency graph view is being updated for the new analysis layer.
-                      </div>
-                    )}
+                    <FeatureTable
+                      sessionId={sessionId!}
+                      features={features}
+                      selectedFeatures={selectedFeatures}
+                      onToggleFeature={toggleFeature}
+                      onToggleAll={toggleAll}
+                    />
                   </div>
                 </div>
               )}
