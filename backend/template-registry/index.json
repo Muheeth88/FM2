@@ -1,0 +1,28 @@
+{
+    "playwright": {
+        "typescript": {
+            "playwrighttest": "playwright_typescript_playwrighttest.json"
+        },
+        "python": {
+            "pytest": "playwright_python_pytest.json"
+        }
+    },
+    "selenium": {
+        "java": {
+            "testng": "selenium_java_testng.json"
+        },
+        "csharp": {
+            "nunit": "selenium_csharp_nunit.json"
+        }
+    },
+    "cypress": {
+        "javascript": {
+            "mocha": "cypress_javascript_mocha.json"
+        }
+    },
+    "puppeteer": {
+        "javascript": {
+            "jest": "puppeteer_javascript_jest.json"
+        }
+    }
+}

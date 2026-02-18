@@ -1,0 +1,21 @@
+<project>
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>com.framework</groupId>
+  <artifactId>{{PROJECT_NAME}}</artifactId>
+  <version>1.0</version>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.seleniumhq.selenium</groupId>
+      <artifactId>selenium-java</artifactId>
+      <version>{{SELENIUM_VERSION}}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.testng</groupId>
+      <artifactId>testng</artifactId>
+      <version>{{TESTNG_VERSION}}</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+</project>

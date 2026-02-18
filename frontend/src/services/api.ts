@@ -79,5 +79,19 @@ export const api = {
     getFeatureDetail: async (sessionId: string, featureId: string): Promise<FeatureDetail> => {
         const response = await apiInstance.get(`/api/sessions/${sessionId}/features/${featureId}`)
         return response.data
+    },
+
+    // Intent Extraction Service (Step 9)
+    processIntents: async (sessionId: string, featureIds: string[]) => {
+        const response = await apiInstance.post('/api/intent/process', {
+            session_id: sessionId,
+            feature_ids: featureIds
+        })
+        return response.data
+    },
+
+    getSessionIntents: async (sessionId: string) => {
+        const response = await apiInstance.get(`/api/intent/session/${sessionId}`)
+        return response.data
     }
 }

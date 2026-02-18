@@ -1,0 +1,19 @@
+--- STDOUT ---
+--- Processing SmokeTest.java ---
+Steps count: 6
+Assertions count: 0
+Control Flow count: 0
+First action: navigate in BrowserFactory.getDriver
+
+--- Processing CreateCompanyAPITest.java ---
+API Steps count: 2
+Step 0: http_request, method: POST, endpoint: dynamic, src: APIUtil.sendPost
+Step 1: http_request, method: GET, endpoint: dynamic, src: APIUtil.sendGet
+HTTP Request actions: 2
+
+--- Processing BaseAPI.java ---
+Status: SKIPPED, Reason: EMPTY_FEATURE
+
+--- STDERR ---
+C:\Users\Abdul\AppData\Roaming\Python\Python312\site-packages\tree_sitter\__init__.py:36: FutureWarning: Language(path, name) is deprecated. Use Language(ptr, name) instead.
+  warn("{} is deprecated. Use {} instead.".format(old, new), FutureWarning)

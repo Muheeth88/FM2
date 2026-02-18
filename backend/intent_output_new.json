@@ -1,0 +1,187 @@
+{
+  "session_id": "31737b07-cedf-4591-ae0f-56fe3f0a5dd5",
+  "results": [
+    {
+      "feature_id": "841fe0b0-35c9-4568-a64a-4d1d93b9f975",
+      "intent_hash": "a970a3cbed14853371555bd07a072e7211aee4c48675553f794cc54ed08b7396",
+      "normalized_model": {
+        "steps": [
+          {
+            "type": "action",
+            "action": "navigate",
+            "url": "dynamic",
+            "source_method": "BrowserFactory.getDriver"
+          },
+          {
+            "type": "action",
+            "action": "wait",
+            "locator": {
+              "strategy": "xpath",
+              "value": "//input[@placeholder='Email']"
+            },
+            "source_method": "LoginPage.loginToApplication"
+          },
+          {
+            "type": "action",
+            "action": "type",
+            "locator": {
+              "strategy": "xpath",
+              "value": "//input[@placeholder='Email']"
+            },
+            "value": "dynamic",
+            "value_ref": "sUserName",
+            "source_method": "LoginPage.loginToApplication"
+          },
+          {
+            "type": "action",
+            "action": "type",
+            "locator": {
+              "strategy": "xpath",
+              "value": "//input[@placeholder='Password']"
+            },
+            "value": "dynamic",
+            "value_ref": "sPassword",
+            "source_method": "LoginPage.loginToApplication"
+          },
+          {
+            "type": "action",
+            "action": "click",
+            "locator": {
+              "strategy": "xpath",
+              "value": "//div[text()='Login']"
+            },
+            "source_method": "LoginPage.loginToApplication"
+          },
+          {
+            "type": "action",
+            "action": "wait",
+            "locator": {
+              "strategy": "xpath",
+              "value": "//i[@class='home icon']"
+            },
+            "source_method": "LoginPage.loginToApplication"
+          }
+        ],
+        "assertions": [],
+        "locators": [],
+        "lifecycle_hooks": [
+          {
+            "type": "beforeAll",
+            "action": "report_setup",
+            "method": "setUpSuite"
+          },
+          {
+            "type": "afterAll",
+            "action": "browser_close",
+            "method": "tearDownSuite"
+          },
+          {
+            "type": "beforeEach",
+            "action": "driver_init",
+            "method": "setUp"
+          },
+          {
+            "type": "afterEach",
+            "action": "driver_init",
+            "method": "teardown"
+          }
+        ],
+        "control_flow": []
+      },
+      "enriched_model": {
+        "steps": [
+          {
+            "type": "action",
+            "action": "navigate",
+            "url": "dynamic",
+            "source_method": "BrowserFactory.getDriver",
+            "label": "Navigate to Application"
+          },
+          {
+            "type": "action",
+            "action": "wait",
+            "locator": {
+              "strategy": "xpath",
+              "value": "//input[@placeholder='Email']"
+            },
+            "source_method": "LoginPage.loginToApplication",
+            "label": "Wait for Email Input"
+          },
+          {
+            "type": "action",
+            "action": "type",
+            "locator": {
+              "strategy": "xpath",
+              "value": "//input[@placeholder='Email']"
+            },
+            "value": "dynamic",
+            "value_ref": "sUserName",
+            "source_method": "LoginPage.loginToApplication",
+            "label": "Type Email"
+          },
+          {
+            "type": "action",
+            "action": "type",
+            "locator": {
+              "strategy": "xpath",
+              "value": "//input[@placeholder='Password']"
+            },
+            "value": "dynamic",
+            "value_ref": "sPassword",
+            "source_method": "LoginPage.loginToApplication",
+            "label": "Type Password"
+          },
+          {
+            "type": "action",
+            "action": "click",
+            "locator": {
+              "strategy": "xpath",
+              "value": "//div[text()='Login']"
+            },
+            "source_method": "LoginPage.loginToApplication",
+            "label": "Click Login Button"
+          },
+          {
+            "type": "action",
+            "action": "wait",
+            "locator": {
+              "strategy": "xpath",
+              "value": "//i[@class='home icon']"
+            },
+            "source_method": "LoginPage.loginToApplication",
+            "label": "Wait for Home Icon"
+          }
+        ],
+        "assertions": [],
+        "locators": [],
+        "lifecycle_hooks": [
+          {
+            "type": "beforeAll",
+            "action": "report_setup",
+            "method": "setUpSuite",
+            "label": "Setup Suite"
+          },
+          {
+            "type": "afterAll",
+            "action": "browser_close",
+            "method": "tearDownSuite",
+            "label": "Tear Down Suite"
+          },
+          {
+            "type": "beforeEach",
+            "action": "driver_init",
+            "method": "setUp",
+            "label": "Initialize Driver"
+          },
+          {
+            "type": "afterEach",
+            "action": "driver_init",
+            "method": "teardown",
+            "label": "Teardown Driver"
+          }
+        ],
+        "control_flow": []
+      }
+    }
+  ]
+}

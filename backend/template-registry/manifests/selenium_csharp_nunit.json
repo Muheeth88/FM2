@@ -1,0 +1,33 @@
+{
+    "framework": "selenium",
+    "language": "csharp",
+    "engine": "nunit",
+    "version": "1.0",
+    "variables": {
+        "SELENIUM_VERSION": {
+            "required": false,
+            "default": "4.15.0"
+        },
+        "NUNIT_VERSION": {
+            "required": false,
+            "default": "3.14.0"
+        }
+    },
+    "folders": [
+        {
+            "path": "tests",
+            "gitkeep": true
+        },
+        {
+            "path": "pages",
+            "gitkeep": true
+        }
+    ],
+    "files": [
+        {
+            "path": "Framework.csproj",
+            "type": "fragment",
+            "source": "csproj_nunit.txt"
+        }
+    ]
+}

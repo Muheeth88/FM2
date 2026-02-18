@@ -1,0 +1,1208 @@
+{
+    "session_id": "bcf6eec0-c938-44d8-a6e8-d838dcb2cf31",
+    "results": [
+        {
+            "feature_id": "6458e4fc-d93b-4cbd-b555-4aaa56322eaa",
+            "intent_hash": "e0ff83ce73a62efaa5edee823a4cee7fc741645a19c6e4cdff8ec2a4def3637d",
+            "normalized_model": {
+                "steps": [
+                    {
+                        "type": "action",
+                        "action": "http_request",
+                        "method": "POST",
+                        "endpoint": "dynamic",
+                        "source_method": "APIUtil.sendPost"
+                    },
+                    {
+                        "type": "action",
+                        "action": "http_request",
+                        "method": "GET",
+                        "endpoint": "dynamic",
+                        "source_method": "APIUtil.sendGet"
+                    }
+                ],
+                "assertions": [
+                    {
+                        "type": "assertion",
+                        "operator": "equals",
+                        "left": "actualStatusCode",
+                        "right": "APIConstants.STATUS_CREATED"
+                    }
+                ],
+                "locators": [],
+                "lifecycle_hooks": [
+                    {
+                        "type": "beforeEach",
+                        "action": "driver_init",
+                        "method": "setUp"
+                    },
+                    {
+                        "type": "afterEach",
+                        "action": "browser_close",
+                        "method": "tearDown"
+                    },
+                    {
+                        "type": "beforeAll",
+                        "action": "driver_init",
+                        "method": "setUpSuite"
+                    },
+                    {
+                        "type": "afterAll",
+                        "action": "browser_close",
+                        "method": "tearDownSuite"
+                    }
+                ],
+                "control_flow": [
+                    {
+                        "type": "control",
+                        "action": "if",
+                        "condition": "addresses != null",
+                        "scope": "page_object",
+                        "file": "D:\\Workspace\\FM2\\backend\\workspaces\\bcf6eec0-c938-44d8-a6e8-d838dcb2cf31\\source\\src\\main\\java\\com\\cogmento\\pages\\api\\Companies.java",
+                        "line": 57
+                    },
+                    {
+                        "type": "control",
+                        "action": "if",
+                        "condition": "!companies.isCreateCompanySuccessful",
+                        "scope": "test",
+                        "file": "D:/Workspace/FM2/backend/workspaces/bcf6eec0-c938-44d8-a6e8-d838dcb2cf31/source/src/test/java/com/cogmento/testcases/api/company/CreateCompanyAPICompleteDetails.java",
+                        "line": 33
+                    }
+                ],
+                "validation_warnings": []
+            },
+            "enriched_model": null
+        },
+        {
+            "feature_id": "7b1a5f3f-047e-4021-af2c-d138db0bda93",
+            "intent_hash": "3d06d545bc293f7418c9cfe335fc86717c7535b4d61944a2ea241dccdc418851",
+            "normalized_model": {
+                "steps": [
+                    {
+                        "type": "action",
+                        "action": "http_request",
+                        "method": "POST",
+                        "endpoint": "dynamic",
+                        "source_method": "APIUtil.sendPost"
+                    },
+                    {
+                        "type": "action",
+                        "action": "http_request",
+                        "method": "GET",
+                        "endpoint": "dynamic",
+                        "source_method": "APIUtil.sendGet"
+                    }
+                ],
+                "assertions": [
+                    {
+                        "type": "assertion",
+                        "operator": "equals",
+                        "left": "actualStatusCode",
+                        "right": "APIConstants.STATUS_CREATED"
+                    }
+                ],
+                "locators": [],
+                "lifecycle_hooks": [
+                    {
+                        "type": "beforeEach",
+                        "action": "driver_init",
+                        "method": "setUp"
+                    },
+                    {
+                        "type": "afterEach",
+                        "action": "browser_close",
+                        "method": "tearDown"
+                    },
+                    {
+                        "type": "beforeAll",
+                        "action": "driver_init",
+                        "method": "setUpSuite"
+                    },
+                    {
+                        "type": "afterAll",
+                        "action": "browser_close",
+                        "method": "tearDownSuite"
+                    }
+                ],
+                "control_flow": [
+                    {
+                        "type": "control",
+                        "action": "if",
+                        "condition": "addresses != null",
+                        "scope": "page_object",
+                        "file": "D:\\Workspace\\FM2\\backend\\workspaces\\bcf6eec0-c938-44d8-a6e8-d838dcb2cf31\\source\\src\\main\\java\\com\\cogmento\\pages\\api\\Companies.java",
+                        "line": 57
+                    },
+                    {
+                        "type": "control",
+                        "action": "if",
+                        "condition": "!companies.isCreateCompanySuccessful",
+                        "scope": "test",
+                        "file": "D:/Workspace/FM2/backend/workspaces/bcf6eec0-c938-44d8-a6e8-d838dcb2cf31/source/src/test/java/com/cogmento/testcases/api/company/CreateCompanyAPITest.java",
+                        "line": 35
+                    }
+                ],
+                "validation_warnings": []
+            },
+            "enriched_model": null
+        },
+        {
+            "feature_id": "ed06f6c7-f398-4153-8ca0-e0a6faa5c791",
+            "intent_hash": "f757685075463c144cb37102e281989671e3a96bf85958938acf493a66444376",
+            "normalized_model": {
+                "steps": [
+                    {
+                        "type": "action",
+                        "action": "http_request",
+                        "method": "POST",
+                        "endpoint": "dynamic",
+                        "source_method": "APIUtil.sendPost"
+                    }
+                ],
+                "assertions": [
+                    {
+                        "type": "assertion",
+                        "operator": "equals",
+                        "left": "actStatusCode",
+                        "right": "APIConstants.STATUS_BAD_REQUEST"
+                    },
+                    {
+                        "type": "assertion",
+                        "operator": "equals",
+                        "left": "actErrorMessage",
+                        "right": "APIConstants.ERR_COMPANY_NAME_REQUIRED"
+                    }
+                ],
+                "locators": [],
+                "lifecycle_hooks": [
+                    {
+                        "type": "beforeEach",
+                        "action": "driver_init",
+                        "method": "setUp"
+                    },
+                    {
+                        "type": "afterEach",
+                        "action": "browser_close",
+                        "method": "tearDown"
+                    },
+                    {
+                        "type": "beforeAll",
+                        "action": "driver_init",
+                        "method": "setUpSuite"
+                    },
+                    {
+                        "type": "afterAll",
+                        "action": "browser_close",
+                        "method": "tearDownSuite"
+                    }
+                ],
+                "control_flow": [
+                    {
+                        "type": "control",
+                        "action": "if",
+                        "condition": "addresses != null",
+                        "scope": "page_object",
+                        "file": "D:\\Workspace\\FM2\\backend\\workspaces\\bcf6eec0-c938-44d8-a6e8-d838dcb2cf31\\source\\src\\main\\java\\com\\cogmento\\pages\\api\\Companies.java",
+                        "line": 57
+                    },
+                    {
+                        "type": "control",
+                        "action": "if",
+                        "condition": "companies.isCreateCompanySuccessful",
+                        "scope": "test",
+                        "file": "D:/Workspace/FM2/backend/workspaces/bcf6eec0-c938-44d8-a6e8-d838dcb2cf31/source/src/test/java/com/cogmento/testcases/api/company/CreateCompanyExceedingMaxLimitAPITest.java",
+                        "line": 35
+                    }
+                ],
+                "validation_warnings": []
+            },
+            "enriched_model": null
+        },
+        {
+            "feature_id": "0b94af87-efe3-41f6-b9c9-819e6ebba78a",
+            "intent_hash": "f8d1e305a3d52bfef27a2ff39b5c4ca863c9f04aabafff9e77c46d098ea25d06",
+            "normalized_model": {
+                "steps": [
+                    {
+                        "type": "action",
+                        "action": "http_request",
+                        "method": "POST",
+                        "endpoint": "dynamic",
+                        "source_method": "APIUtil.sendPost"
+                    }
+                ],
+                "assertions": [],
+                "locators": [],
+                "lifecycle_hooks": [
+                    {
+                        "type": "beforeEach",
+                        "action": "driver_init",
+                        "method": "setUp"
+                    },
+                    {
+                        "type": "afterEach",
+                        "action": "browser_close",
+                        "method": "tearDown"
+                    },
+                    {
+                        "type": "beforeAll",
+                        "action": "driver_init",
+                        "method": "setUpSuite"
+                    },
+                    {
+                        "type": "afterAll",
+                        "action": "browser_close",
+                        "method": "tearDownSuite"
+                    }
+                ],
+                "control_flow": [
+                    {
+                        "type": "control",
+                        "action": "if",
+                        "condition": "addresses != null",
+                        "scope": "page_object",
+                        "file": "D:\\Workspace\\FM2\\backend\\workspaces\\bcf6eec0-c938-44d8-a6e8-d838dcb2cf31\\source\\src\\main\\java\\com\\cogmento\\pages\\api\\Companies.java",
+                        "line": 57
+                    },
+                    {
+                        "type": "control",
+                        "action": "if",
+                        "condition": "!companies.isCreateCompanySuccessful",
+                        "scope": "test",
+                        "file": "D:/Workspace/FM2/backend/workspaces/bcf6eec0-c938-44d8-a6e8-d838dcb2cf31/source/src/test/java/com/cogmento/testcases/api/company/CreateCompanyWithMandatoryFieldsAPI.java",
+                        "line": 34
+                    }
+                ],
+                "validation_warnings": []
+            },
+            "enriched_model": null
+        },
+        {
+            "feature_id": "6ab65b9f-65f0-41a4-97eb-ec2139c91d0f",
+            "intent_hash": "32d7857537d399cf454c0241ef54e1c8959d24910d9ca427e462ddd60d20e3c8",
+            "normalized_model": {
+                "steps": [
+                    {
+                        "type": "action",
+                        "action": "http_request",
+                        "method": "POST",
+                        "endpoint": "dynamic",
+                        "source_method": "APIUtil.sendPost"
+                    }
+                ],
+                "assertions": [
+                    {
+                        "type": "assertion",
+                        "operator": "equals",
+                        "left": "actStatusCode",
+                        "right": "APIConstants.STATUS_BAD_REQUEST"
+                    },
+                    {
+                        "type": "assertion",
+                        "operator": "equals",
+                        "left": "actErrorMessage",
+                        "right": "APIConstants.ERR_COMPANY_NAME_REQUIRED"
+                    }
+                ],
+                "locators": [],
+                "lifecycle_hooks": [
+                    {
+                        "type": "beforeEach",
+                        "action": "driver_init",
+                        "method": "setUp"
+                    },
+                    {
+                        "type": "afterEach",
+                        "action": "browser_close",
+                        "method": "tearDown"
+                    },
+                    {
+                        "type": "beforeAll",
+                        "action": "driver_init",
+                        "method": "setUpSuite"
+                    },
+                    {
+                        "type": "afterAll",
+                        "action": "browser_close",
+                        "method": "tearDownSuite"
+                    }
+                ],
+                "control_flow": [
+                    {
+                        "type": "control",
+                        "action": "if",
+                        "condition": "addresses != null",
+                        "scope": "page_object",
+                        "file": "D:\\Workspace\\FM2\\backend\\workspaces\\bcf6eec0-c938-44d8-a6e8-d838dcb2cf31\\source\\src\\main\\java\\com\\cogmento\\pages\\api\\Companies.java",
+                        "line": 57
+                    },
+                    {
+                        "type": "control",
+                        "action": "if",
+                        "condition": "companies.isCreateCompanySuccessful",
+                        "scope": "test",
+                        "file": "D:/Workspace/FM2/backend/workspaces/bcf6eec0-c938-44d8-a6e8-d838dcb2cf31/source/src/test/java/com/cogmento/testcases/api/company/CreateCompanyWithoutMandatoryFieldsAPI.java",
+                        "line": 35
+                    }
+                ],
+                "validation_warnings": []
+            },
+            "enriched_model": null
+        },
+        {
+            "feature_id": "4eb32578-62be-4fb2-b299-6214df97b906",
+            "intent_hash": "4390be2b24fbb933b3e8e5d91a8ec79376d6d7244b86405046d61dec10a4bd27",
+            "normalized_model": {
+                "steps": [
+                    {
+                        "type": "action",
+                        "action": "http_request",
+                        "method": "POST",
+                        "endpoint": "dynamic",
+                        "source_method": "APIUtil.sendPost"
+                    }
+                ],
+                "assertions": [],
+                "locators": [],
+                "lifecycle_hooks": [
+                    {
+                        "type": "beforeEach",
+                        "action": "driver_init",
+                        "method": "setUp"
+                    },
+                    {
+                        "type": "afterEach",
+                        "action": "browser_close",
+                        "method": "tearDown"
+                    },
+                    {
+                        "type": "beforeAll",
+                        "action": "driver_init",
+                        "method": "setUpSuite"
+                    },
+                    {
+                        "type": "afterAll",
+                        "action": "browser_close",
+                        "method": "tearDownSuite"
+                    }
+                ],
+                "control_flow": [
+                    {
+                        "type": "control",
+                        "action": "if",
+                        "condition": "addresses != null",
+                        "scope": "page_object",
+                        "file": "D:\\Workspace\\FM2\\backend\\workspaces\\bcf6eec0-c938-44d8-a6e8-d838dcb2cf31\\source\\src\\main\\java\\com\\cogmento\\pages\\api\\Companies.java",
+                        "line": 57
+                    },
+                    {
+                        "type": "control",
+                        "action": "if",
+                        "condition": "!companies.isCreateCompanySuccessful",
+                        "scope": "test",
+                        "file": "D:/Workspace/FM2/backend/workspaces/bcf6eec0-c938-44d8-a6e8-d838dcb2cf31/source/src/test/java/com/cogmento/testcases/api/company/UpdateCompanyAPI.java",
+                        "line": 35
+                    }
+                ],
+                "validation_warnings": []
+            },
+            "enriched_model": null
+        },
+        {
+            "feature_id": "7be749e4-73f3-4337-9ea6-1648809ed5e6",
+            "status": "SKIPPED",
+            "reason": "EMPTY_FEATURE"
+        },
+        {
+            "feature_id": "35527083-5581-4579-9fab-c1de22b79d28",
+            "intent_hash": "bd4b7d15ca361f260b4d5eba621a7e8fca97516aba932fe8d8d406a39501801d",
+            "normalized_model": {
+                "steps": [
+                    {
+                        "type": "action",
+                        "action": "wait",
+                        "source_method": "BasePage.pageRefresh"
+                    }
+                ],
+                "assertions": [],
+                "locators": [],
+                "lifecycle_hooks": [
+                    {
+                        "type": "beforeEach",
+                        "action": "driver_init",
+                        "method": "setUp"
+                    },
+                    {
+                        "type": "afterEach",
+                        "action": "browser_close",
+                        "method": "tearDown"
+                    },
+                    {
+                        "type": "beforeAll",
+                        "action": "driver_init",
+                        "method": "setUpSuite"
+                    },
+                    {
+                        "type": "afterAll",
+                        "action": "browser_close",
+                        "method": "tearDownSuite"
+                    },
+                    {
+                        "type": "afterEach",
+                        "action": "browser_close",
+                        "method": "teardown"
+                    }
+                ],
+                "control_flow": [
+                    {
+                        "type": "control",
+                        "action": "try",
+                        "condition": "",
+                        "scope": "test",
+                        "file": "D:/Workspace/FM2/backend/workspaces/bcf6eec0-c938-44d8-a6e8-d838dcb2cf31/source/src/test/java/com/cogmento/testcases/demo/CreateContactHybrid.java",
+                        "line": 61
+                    },
+                    {
+                        "type": "control",
+                        "action": "if",
+                        "condition": "verify == false",
+                        "scope": "page_object",
+                        "file": "D:\\Workspace\\FM2\\backend\\workspaces\\bcf6eec0-c938-44d8-a6e8-d838dcb2cf31\\source\\src\\main\\java\\com\\cogmento\\pages\\web\\BasePage.java",
+                        "line": 319
+                    }
+                ],
+                "validation_warnings": []
+            },
+            "enriched_model": null
+        },
+        {
+            "feature_id": "8b135ec5-c979-47b8-ab83-7edff021518c",
+            "status": "SKIPPED",
+            "reason": "EMPTY_FEATURE"
+        },
+        {
+            "feature_id": "6f4777e5-6d6d-4d4a-85a5-31b60833da7d",
+            "status": "SKIPPED",
+            "reason": "EMPTY_FEATURE"
+        },
+        {
+            "feature_id": "db65c0cf-e478-4b67-a30f-971c7e0872d7",
+            "intent_hash": "8abf3b96660beeafc89b372e45f86c3668b8a676a4e88873b98ed2a2fdf23f6c",
+            "normalized_model": {
+                "steps": [
+                    {
+                        "type": "action",
+                        "action": "wait",
+                        "source_method": "BasePage.pageRefresh"
+                    }
+                ],
+                "assertions": [],
+                "locators": [],
+                "lifecycle_hooks": [
+                    {
+                        "type": "beforeEach",
+                        "action": "driver_init",
+                        "method": "setUp"
+                    },
+                    {
+                        "type": "afterEach",
+                        "action": "browser_close",
+                        "method": "tearDown"
+                    },
+                    {
+                        "type": "beforeAll",
+                        "action": "driver_init",
+                        "method": "setUpSuite"
+                    },
+                    {
+                        "type": "afterAll",
+                        "action": "browser_close",
+                        "method": "tearDownSuite"
+                    },
+                    {
+                        "type": "afterEach",
+                        "action": "browser_close",
+                        "method": "teardown"
+                    }
+                ],
+                "control_flow": [
+                    {
+                        "type": "control",
+                        "action": "try",
+                        "condition": "",
+                        "scope": "test",
+                        "file": "D:/Workspace/FM2/backend/workspaces/bcf6eec0-c938-44d8-a6e8-d838dcb2cf31/source/src/test/java/com/cogmento/testcases/hybrid/contact/CreateContactHybrid.java",
+                        "line": 60
+                    },
+                    {
+                        "type": "control",
+                        "action": "if",
+                        "condition": "verify == false",
+                        "scope": "page_object",
+                        "file": "D:\\Workspace\\FM2\\backend\\workspaces\\bcf6eec0-c938-44d8-a6e8-d838dcb2cf31\\source\\src\\main\\java\\com\\cogmento\\pages\\web\\BasePage.java",
+                        "line": 319
+                    }
+                ],
+                "validation_warnings": []
+            },
+            "enriched_model": null
+        },
+        {
+            "feature_id": "391e4aa3-fbe4-4e5b-85ec-fbee5f05a44c",
+            "status": "SKIPPED",
+            "reason": "EMPTY_FEATURE"
+        },
+        {
+            "feature_id": "7a0facc7-d1a8-4700-baf9-50a281084b4f",
+            "intent_hash": "0817a456a217886b31ad9e9734184337ff1330d58641c2e47e4626f2ddfb9d76",
+            "normalized_model": {
+                "steps": [
+                    {
+                        "type": "action",
+                        "action": "click",
+                        "source_method": "HomePage.selectEntity"
+                    }
+                ],
+                "assertions": [],
+                "locators": [],
+                "lifecycle_hooks": [
+                    {
+                        "type": "beforeEach",
+                        "action": "driver_init",
+                        "method": "setUp"
+                    },
+                    {
+                        "type": "afterEach",
+                        "action": "browser_close",
+                        "method": "tearDown"
+                    },
+                    {
+                        "type": "beforeAll",
+                        "action": "driver_init",
+                        "method": "setUpSuite"
+                    },
+                    {
+                        "type": "afterAll",
+                        "action": "browser_close",
+                        "method": "tearDownSuite"
+                    },
+                    {
+                        "type": "afterEach",
+                        "action": "browser_close",
+                        "method": "teardown"
+                    }
+                ],
+                "control_flow": [
+                    {
+                        "type": "control",
+                        "action": "try",
+                        "condition": "",
+                        "scope": "test",
+                        "file": "D:/Workspace/FM2/backend/workspaces/bcf6eec0-c938-44d8-a6e8-d838dcb2cf31/source/src/test/java/com/cogmento/testcases/web/cases/CreateCase.java",
+                        "line": 53
+                    },
+                    {
+                        "type": "control",
+                        "action": "if",
+                        "condition": "caseVerification",
+                        "scope": "test",
+                        "file": "D:/Workspace/FM2/backend/workspaces/bcf6eec0-c938-44d8-a6e8-d838dcb2cf31/source/src/test/java/com/cogmento/testcases/web/cases/CreateCase.java",
+                        "line": 67
+                    }
+                ],
+                "validation_warnings": []
+            },
+            "enriched_model": null
+        },
+        {
+            "feature_id": "f6bf9669-3edf-4e8d-b8be-f723fa4e3959",
+            "intent_hash": "98d2d5f6bed98783fcda66356fd6600540a34472da11a4de8f187a96bb789423",
+            "normalized_model": {
+                "steps": [
+                    {
+                        "type": "action",
+                        "action": "wait",
+                        "locator": {
+                            "strategy": "xpath",
+                            "value": "//div[@class='ui error floating icon message']"
+                        },
+                        "source_method": "CompaniesPage.verifyCompanyFieldLength"
+                    },
+                    {
+                        "type": "action",
+                        "action": "get_text",
+                        "locator": {
+                            "strategy": "xpath",
+                            "value": "//div[@class='ui error floating icon message']"
+                        },
+                        "source_method": "CompaniesPage.verifyCompanyFieldLength"
+                    }
+                ],
+                "assertions": [],
+                "locators": [
+                    {
+                        "field_name": "lengthErrorMsg",
+                        "strategy": "xpath",
+                        "value": "//div[@class='ui error floating icon message']"
+                    }
+                ],
+                "lifecycle_hooks": [
+                    {
+                        "type": "beforeEach",
+                        "action": "driver_init",
+                        "method": "setUp"
+                    },
+                    {
+                        "type": "afterEach",
+                        "action": "browser_close",
+                        "method": "tearDown"
+                    },
+                    {
+                        "type": "beforeAll",
+                        "action": "driver_init",
+                        "method": "setUpSuite"
+                    },
+                    {
+                        "type": "afterAll",
+                        "action": "browser_close",
+                        "method": "tearDownSuite"
+                    },
+                    {
+                        "type": "afterEach",
+                        "action": "browser_close",
+                        "method": "teardown"
+                    }
+                ],
+                "control_flow": [
+                    {
+                        "type": "control",
+                        "action": "try",
+                        "condition": "",
+                        "scope": "test",
+                        "file": "D:/Workspace/FM2/backend/workspaces/bcf6eec0-c938-44d8-a6e8-d838dcb2cf31/source/src/test/java/com/cogmento/testcases/web/company/CompanyExceedingLength.java",
+                        "line": 57
+                    },
+                    {
+                        "type": "control",
+                        "action": "if",
+                        "condition": "errFlag",
+                        "scope": "test",
+                        "file": "D:/Workspace/FM2/backend/workspaces/bcf6eec0-c938-44d8-a6e8-d838dcb2cf31/source/src/test/java/com/cogmento/testcases/web/company/CompanyExceedingLength.java",
+                        "line": 77
+                    }
+                ],
+                "validation_warnings": []
+            },
+            "enriched_model": null
+        },
+        {
+            "feature_id": "5fd1053d-b49f-4a56-aa94-f63a1e86cdc5",
+            "status": "SKIPPED",
+            "reason": "EMPTY_FEATURE"
+        },
+        {
+            "feature_id": "e5906bab-cc49-4845-8d8a-b426e1057557",
+            "status": "SKIPPED",
+            "reason": "EMPTY_FEATURE"
+        },
+        {
+            "feature_id": "357b97cb-2751-4926-81fd-6ee087fbdb52",
+            "status": "SKIPPED",
+            "reason": "EMPTY_FEATURE"
+        },
+        {
+            "feature_id": "a681947a-ebcd-4980-a44c-a17ee66ff439",
+            "status": "SKIPPED",
+            "reason": "EMPTY_FEATURE"
+        },
+        {
+            "feature_id": "87372592-7340-4e56-bb9e-e27b9e1cf47f",
+            "intent_hash": "5c46e2e7f16d3a202d7a1fd405c1bac865654a86e88cb87d89d607f7bbc390a2",
+            "normalized_model": {
+                "steps": [
+                    {
+                        "type": "action",
+                        "action": "get_text",
+                        "locator": {
+                            "strategy": "xpath",
+                            "value": "//label[text() ='Name']/span[@class='inline-error-msg']"
+                        },
+                        "source_method": "CompaniesPage.verifyMandatoryField"
+                    }
+                ],
+                "assertions": [],
+                "locators": [
+                    {
+                        "field_name": "inLineErrMsg",
+                        "strategy": "xpath",
+                        "value": "//label[text() ='Name']/span[@class='inline-error-msg']"
+                    }
+                ],
+                "lifecycle_hooks": [
+                    {
+                        "type": "beforeEach",
+                        "action": "driver_init",
+                        "method": "setUp"
+                    },
+                    {
+                        "type": "afterEach",
+                        "action": "browser_close",
+                        "method": "tearDown"
+                    },
+                    {
+                        "type": "beforeAll",
+                        "action": "driver_init",
+                        "method": "setUpSuite"
+                    },
+                    {
+                        "type": "afterAll",
+                        "action": "browser_close",
+                        "method": "tearDownSuite"
+                    },
+                    {
+                        "type": "afterEach",
+                        "action": "browser_close",
+                        "method": "teardown"
+                    }
+                ],
+                "control_flow": [
+                    {
+                        "type": "control",
+                        "action": "try",
+                        "condition": "",
+                        "scope": "test",
+                        "file": "D:/Workspace/FM2/backend/workspaces/bcf6eec0-c938-44d8-a6e8-d838dcb2cf31/source/src/test/java/com/cogmento/testcases/web/company/CreateCompanyWithoutMandatoryFields.java",
+                        "line": 51
+                    },
+                    {
+                        "type": "control",
+                        "action": "if",
+                        "condition": "!expErrMsg.contains(sActualErrorMessage",
+                        "scope": "page_object",
+                        "file": "D:\\Workspace\\FM2\\backend\\workspaces\\bcf6eec0-c938-44d8-a6e8-d838dcb2cf31\\source\\src\\main\\java\\com\\cogmento\\pages\\web\\CompaniesPage.java",
+                        "line": 236
+                    },
+                    {
+                        "type": "control",
+                        "action": "if",
+                        "condition": "verificationResult != null",
+                        "scope": "test",
+                        "file": "D:/Workspace/FM2/backend/workspaces/bcf6eec0-c938-44d8-a6e8-d838dcb2cf31/source/src/test/java/com/cogmento/testcases/web/company/CreateCompanyWithoutMandatoryFields.java",
+                        "line": 72
+                    }
+                ],
+                "validation_warnings": []
+            },
+            "enriched_model": null
+        },
+        {
+            "feature_id": "f4400a2d-b805-481c-b813-3e1f35b433ef",
+            "status": "SKIPPED",
+            "reason": "EMPTY_FEATURE"
+        },
+        {
+            "feature_id": "106f3815-163c-4ffc-84cf-9372a47880a4",
+            "status": "SKIPPED",
+            "reason": "EMPTY_FEATURE"
+        },
+        {
+            "feature_id": "871d6ee7-d24c-4743-8cf4-1516b2f13557",
+            "status": "SKIPPED",
+            "reason": "EMPTY_FEATURE"
+        },
+        {
+            "feature_id": "ecb4e551-2165-4f74-98cd-107384d3013c",
+            "status": "SKIPPED",
+            "reason": "EMPTY_FEATURE"
+        },
+        {
+            "feature_id": "5c4778cc-442e-426c-b184-016dc10113e9",
+            "status": "SKIPPED",
+            "reason": "EMPTY_FEATURE"
+        },
+        {
+            "feature_id": "74563399-a140-4020-ba41-1941ed1d24ba",
+            "status": "SKIPPED",
+            "reason": "EMPTY_FEATURE"
+        },
+        {
+            "feature_id": "e4512b91-e2d3-4423-9e9d-03c155a47574",
+            "intent_hash": "b6ce5549a01f4ffab0f6526c4d581725749c37682975ad34165c57c23723f7bc",
+            "normalized_model": {
+                "steps": [
+                    {
+                        "type": "action",
+                        "action": "click",
+                        "locator": {
+                            "strategy": "xpath",
+                            "value": "//button[text()='Create']"
+                        },
+                        "source_method": "DealsPage.clickOnNewDealsButton"
+                    },
+                    {
+                        "type": "action",
+                        "action": "wait",
+                        "locator": {
+                            "strategy": "xpath",
+                            "value": "//div[@class='ui error floating icon message']"
+                        },
+                        "source_method": "DealsPage.verifyDealFieldLength"
+                    },
+                    {
+                        "type": "action",
+                        "action": "get_text",
+                        "locator": {
+                            "strategy": "xpath",
+                            "value": "//div[@class='ui error floating icon message']"
+                        },
+                        "source_method": "DealsPage.verifyDealFieldLength"
+                    }
+                ],
+                "assertions": [
+                    {
+                        "type": "assertion",
+                        "operator": "true",
+                        "condition": "actualErrMsg.contains(expErrMsg)",
+                        "source_method": "DealsPage.verifyDealFieldLength"
+                    }
+                ],
+                "locators": [
+                    {
+                        "field_name": "lengthErrorMsg",
+                        "strategy": "xpath",
+                        "value": "//div[@class='ui error floating icon message']"
+                    },
+                    {
+                        "field_name": "btncreateNewDeal",
+                        "strategy": "xpath",
+                        "value": "//button[text()='Create']"
+                    }
+                ],
+                "lifecycle_hooks": [
+                    {
+                        "type": "beforeEach",
+                        "action": "driver_init",
+                        "method": "setUp"
+                    },
+                    {
+                        "type": "beforeAll",
+                        "action": "driver_init",
+                        "method": "setUpSuite"
+                    },
+                    {
+                        "type": "afterAll",
+                        "action": "browser_close",
+                        "method": "tearDownSuite"
+                    },
+                    {
+                        "type": "afterEach",
+                        "action": "browser_close",
+                        "method": "teardown"
+                    }
+                ],
+                "control_flow": [
+                    {
+                        "type": "control",
+                        "action": "try",
+                        "condition": "",
+                        "scope": "test",
+                        "file": "D:/Workspace/FM2/backend/workspaces/bcf6eec0-c938-44d8-a6e8-d838dcb2cf31/source/src/test/java/com/cogmento/testcases/web/deal/CreateDealWithExceedingLength.java",
+                        "line": 54
+                    }
+                ],
+                "validation_warnings": []
+            },
+            "enriched_model": null
+        },
+        {
+            "feature_id": "6ee7013b-c1c2-4497-8014-8855d0432447",
+            "intent_hash": "66cd3cbe214c22216dca5b2e1ca143e1ef4a9e1448fa66639fefd97909cb45c2",
+            "normalized_model": {
+                "steps": [
+                    {
+                        "type": "action",
+                        "action": "click",
+                        "locator": {
+                            "strategy": "xpath",
+                            "value": "//button[text()='Create']"
+                        },
+                        "source_method": "DealsPage.clickOnNewDealsButton"
+                    }
+                ],
+                "assertions": [],
+                "locators": [
+                    {
+                        "field_name": "btncreateNewDeal",
+                        "strategy": "xpath",
+                        "value": "//button[text()='Create']"
+                    }
+                ],
+                "lifecycle_hooks": [
+                    {
+                        "type": "beforeEach",
+                        "action": "driver_init",
+                        "method": "setUp"
+                    },
+                    {
+                        "type": "afterEach",
+                        "action": "browser_close",
+                        "method": "tearDown"
+                    },
+                    {
+                        "type": "beforeAll",
+                        "action": "driver_init",
+                        "method": "setUpSuite"
+                    },
+                    {
+                        "type": "afterAll",
+                        "action": "browser_close",
+                        "method": "tearDownSuite"
+                    },
+                    {
+                        "type": "afterEach",
+                        "action": "browser_close",
+                        "method": "teardown"
+                    }
+                ],
+                "control_flow": [
+                    {
+                        "type": "control",
+                        "action": "try",
+                        "condition": "",
+                        "scope": "test",
+                        "file": "D:/Workspace/FM2/backend/workspaces/bcf6eec0-c938-44d8-a6e8-d838dcb2cf31/source/src/test/java/com/cogmento/testcases/web/deal/CreateDealWithMaximumLength.java",
+                        "line": 54
+                    }
+                ],
+                "validation_warnings": []
+            },
+            "enriched_model": null
+        },
+        {
+            "feature_id": "d3c06876-0d92-4f2f-bc96-7cf4751c8d60",
+            "intent_hash": "b9eb83b58c55fe017b82dce1afcf7c0920c7e1e3d3a682e0a415703a9c736259",
+            "normalized_model": {
+                "steps": [
+                    {
+                        "type": "action",
+                        "action": "click",
+                        "locator": {
+                            "strategy": "xpath",
+                            "value": "//button[text()='Create']"
+                        },
+                        "source_method": "DealsPage.clickOnNewDealsButton"
+                    },
+                    {
+                        "type": "action",
+                        "action": "wait",
+                        "locator": {
+                            "strategy": "xpath",
+                            "value": "//label[text() ='Title']/span[@class='inline-error-msg']"
+                        },
+                        "source_method": "DealsPage.verifyDealMandatoryField"
+                    },
+                    {
+                        "type": "action",
+                        "action": "get_text",
+                        "locator": {
+                            "strategy": "xpath",
+                            "value": "//label[text() ='Title']/span[@class='inline-error-msg']"
+                        },
+                        "source_method": "DealsPage.verifyDealMandatoryField"
+                    }
+                ],
+                "assertions": [
+                    {
+                        "type": "assertion",
+                        "operator": "equals",
+                        "left": "actErrMsg",
+                        "right": "expErrMsg",
+                        "source_method": "DealsPage.verifyDealMandatoryField"
+                    },
+                    {
+                        "type": "assertion",
+                        "operator": "fail",
+                        "message": "Inline Error Message not displayed",
+                        "source_method": "DealsPage.verifyDealMandatoryField"
+                    }
+                ],
+                "locators": [
+                    {
+                        "field_name": "inLineErrMsg",
+                        "strategy": "xpath",
+                        "value": "//label[text() ='Title']/span[@class='inline-error-msg']"
+                    },
+                    {
+                        "field_name": "btncreateNewDeal",
+                        "strategy": "xpath",
+                        "value": "//button[text()='Create']"
+                    }
+                ],
+                "lifecycle_hooks": [
+                    {
+                        "type": "beforeEach",
+                        "action": "driver_init",
+                        "method": "setUp"
+                    },
+                    {
+                        "type": "beforeAll",
+                        "action": "driver_init",
+                        "method": "setUpSuite"
+                    },
+                    {
+                        "type": "afterAll",
+                        "action": "browser_close",
+                        "method": "tearDownSuite"
+                    },
+                    {
+                        "type": "afterEach",
+                        "action": "browser_close",
+                        "method": "teardown"
+                    }
+                ],
+                "control_flow": [
+                    {
+                        "type": "control",
+                        "action": "try",
+                        "condition": "",
+                        "scope": "test",
+                        "file": "D:/Workspace/FM2/backend/workspaces/bcf6eec0-c938-44d8-a6e8-d838dcb2cf31/source/src/test/java/com/cogmento/testcases/web/deal/CreateDealWithoutMandatoryField.java",
+                        "line": 48
+                    },
+                    {
+                        "type": "control",
+                        "action": "if",
+                        "condition": "scriptAction.isElementVisible(inLineErrMsg, 2",
+                        "scope": "page_object",
+                        "file": "D:\\Workspace\\FM2\\backend\\workspaces\\bcf6eec0-c938-44d8-a6e8-d838dcb2cf31\\source\\src\\main\\java\\com\\cogmento\\pages\\web\\DealsPage.java",
+                        "line": 146
+                    }
+                ],
+                "validation_warnings": []
+            },
+            "enriched_model": null
+        },
+        {
+            "feature_id": "f3066310-d282-4419-9fe6-978ff1884c37",
+            "status": "SKIPPED",
+            "reason": "EMPTY_FEATURE"
+        },
+        {
+            "feature_id": "fe165ffa-a5cb-42b6-8825-2d2348215d12",
+            "intent_hash": "5bcc06c13e8e46fcd52376379ecc3bd0c00c65bfe7e8746b82889e40ad5c0d4e",
+            "normalized_model": {
+                "steps": [
+                    {
+                        "type": "action",
+                        "action": "navigate",
+                        "url": "dynamic",
+                        "source_method": "BrowserFactory.getDriver"
+                    },
+                    {
+                        "type": "action",
+                        "action": "wait",
+                        "locator": {
+                            "strategy": "xpath",
+                            "value": "//input[@placeholder='Email']"
+                        },
+                        "source_method": "LoginPage.loginToApplication"
+                    },
+                    {
+                        "type": "action",
+                        "action": "type",
+                        "locator": {
+                            "strategy": "xpath",
+                            "value": "//input[@placeholder='Email']"
+                        },
+                        "value": "dynamic",
+                        "value_ref": "sUserName",
+                        "source_method": "LoginPage.loginToApplication"
+                    },
+                    {
+                        "type": "action",
+                        "action": "type",
+                        "locator": {
+                            "strategy": "xpath",
+                            "value": "//input[@placeholder='Password']"
+                        },
+                        "value": "dynamic",
+                        "value_ref": "sPassword",
+                        "source_method": "LoginPage.loginToApplication"
+                    },
+                    {
+                        "type": "action",
+                        "action": "click",
+                        "locator": {
+                            "strategy": "xpath",
+                            "value": "//div[text()='Login']"
+                        },
+                        "source_method": "LoginPage.loginToApplication"
+                    },
+                    {
+                        "type": "action",
+                        "action": "wait",
+                        "locator": {
+                            "strategy": "xpath",
+                            "value": "//i[@class='home icon']"
+                        },
+                        "source_method": "LoginPage.loginToApplication"
+                    }
+                ],
+                "assertions": [],
+                "locators": [
+                    {
+                        "field_name": "lnkHome",
+                        "strategy": "xpath",
+                        "value": "//i[@class='home icon']"
+                    },
+                    {
+                        "field_name": "btnLogin",
+                        "strategy": "xpath",
+                        "value": "//div[text()='Login']"
+                    },
+                    {
+                        "field_name": "txtUserEmailID",
+                        "strategy": "xpath",
+                        "value": "//input[@placeholder='Email']"
+                    },
+                    {
+                        "field_name": "txtUserPassword",
+                        "strategy": "xpath",
+                        "value": "//input[@placeholder='Password']"
+                    }
+                ],
+                "lifecycle_hooks": [
+                    {
+                        "type": "beforeAll",
+                        "action": "driver_init",
+                        "method": "setUpSuite"
+                    },
+                    {
+                        "type": "afterAll",
+                        "action": "browser_close",
+                        "method": "tearDownSuite"
+                    },
+                    {
+                        "type": "beforeEach",
+                        "action": "driver_init",
+                        "method": "setUp"
+                    },
+                    {
+                        "type": "afterEach",
+                        "action": "browser_close",
+                        "method": "teardown"
+                    }
+                ],
+                "control_flow": [],
+                "validation_warnings": []
+            },
+            "enriched_model": null
+        },
+        {
+            "feature_id": "e762fefe-8968-4f6d-aba1-47d15521a396",
+            "status": "SKIPPED",
+            "reason": "EMPTY_FEATURE"
+        }
+    ]
+}

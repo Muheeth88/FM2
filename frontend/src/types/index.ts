@@ -85,17 +85,43 @@ export interface JavaFileDependency {
     class_name?: string;
 }
 
+export interface BuildDependency {
+    name: string | null;
+    version: string | null;
+    type: string | null;
+}
+
+export interface DriverModel {
+    driver_type: string | null;
+    initialization_pattern: string | null;
+    thread_model: string | null;
+}
+
+export interface AssertionModel {
+    file_path: string;
+    assertion_type: string;
+    library: string;
+}
+
+export interface ConfigFileModel {
+    file_path: string;
+    type: string;
+}
+
 export interface AnalysisResponse {
     session_id: string;
-    status: string;
-    repo_meta?: {
-        repo_root: string;
-        language: string;
-        framework: string;
-        build_system: string;
-    };
-    dependency_graph?: Record<string, JavaFileDependency>;
-    shared_modules?: string[];
+    repo_root: string;
+    language: string;
+    framework: string;
+    build_system: string;
+    features: FeatureSummary[];
+    dependency_graph: Record<string, JavaFileDependency>;
+    build_dependencies: BuildDependency[];
+    driver_model: DriverModel | null;
+    assertions: AssertionModel[];
+    config_files: ConfigFileModel[];
+    shared_modules: string[];
+    status?: string;
 }
 
 

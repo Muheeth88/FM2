@@ -1,0 +1,13 @@
+{
+    "name": "{{PROJECT_NAME}}",
+    "version": "1.0.0",
+    "private": true,
+    "scripts": {
+        "test": "playwright test"
+    },
+    "devDependencies": {
+        "@playwright/test": "^{{PLAYWRIGHT_VERSION}}",
+        "typescript": "^5.0.0",
+        "dotenv": "^16.0.0"
+    }
+}

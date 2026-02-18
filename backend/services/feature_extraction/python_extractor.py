@@ -21,7 +21,7 @@ class PythonFeatureExtractor(AbstractFeatureExtractor):
 
     def parse_python_file(self, file_path: Path):
         try:
-            code = file_path.read_text()
+            code = file_path.read_text(encoding="utf-8", errors="ignore")
             tree = ast.parse(code)
         except:
             return None

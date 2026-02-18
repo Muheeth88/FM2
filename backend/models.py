@@ -87,7 +87,7 @@ class AnalysisResponse(BaseModel):
     framework: str
     build_system: str
     dependency_graph: Dict[str, JavaFileDependency]
-    features: List[FeatureModel]
+    features: List[FeatureSummaryResponse]
     build_dependencies: List[BuildDependency]
     driver_model: Optional[DriverModel]
     assertions: List[AssertionModel]

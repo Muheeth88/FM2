@@ -1,0 +1,43 @@
+{
+    "framework": "playwright",
+    "language": "python",
+    "engine": "pytest",
+    "version": "1.0",
+    "variables": {
+        "PROJECT_NAME": {
+            "required": true,
+            "default": "playwright-py-project"
+        }
+    },
+    "folders": [
+        {
+            "path": "pages",
+            "gitkeep": true
+        },
+        {
+            "path": "tests",
+            "gitkeep": true
+        },
+        {
+            "path": "utils",
+            "gitkeep": true
+        }
+    ],
+    "files": [
+        {
+            "path": "requirements.txt",
+            "type": "fragment",
+            "source": "requirements_playwright_py.txt"
+        },
+        {
+            "path": "pytest.ini",
+            "type": "inline",
+            "content": "[pytest]\naddopts = -v"
+        },
+        {
+            "path": ".gitignore",
+            "type": "inline",
+            "content": "__pycache__/\n.env"
+        }
+    ]
+}

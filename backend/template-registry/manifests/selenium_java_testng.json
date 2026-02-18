@@ -1,0 +1,47 @@
+{
+    "framework": "selenium",
+    "language": "java",
+    "engine": "testng",
+    "version": "1.0",
+    "variables": {
+        "PROJECT_NAME": {
+            "required": true,
+            "default": "selenium-java-project"
+        },
+        "SELENIUM_VERSION": {
+            "required": false,
+            "default": "4.15.0"
+        },
+        "TESTNG_VERSION": {
+            "required": false,
+            "default": "7.9.0"
+        }
+    },
+    "folders": [
+        {
+            "path": "src/main/java",
+            "gitkeep": true
+        },
+        {
+            "path": "src/test/java",
+            "gitkeep": true
+        }
+    ],
+    "files": [
+        {
+            "path": "pom.xml",
+            "type": "fragment",
+            "source": "pom_xml_testng.txt"
+        },
+        {
+            "path": "testng.xml",
+            "type": "fragment",
+            "source": "testng_xml.txt"
+        },
+        {
+            "path": ".gitignore",
+            "type": "inline",
+            "content": "target/\n*.iml"
+        }
+    ]
+}

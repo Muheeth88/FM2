@@ -1,7 +1,7 @@
 import os
 from pathlib import Path
 from tree_sitter import Language, Parser
-import tree_sitter_typescript as ts_ts
+from tree_sitter_languages import get_language
 from .base_extractor import AbstractFeatureExtractor
 
 
@@ -9,7 +9,8 @@ class TSFeatureExtractor(AbstractFeatureExtractor):
 
     def __init__(self, repo_root: str):
         super().__init__(repo_root)
-        self.parser = Parser(Language(ts_ts.language_typescript()))
+        self.parser = Parser()
+        self.parser.set_language(get_language("typescript"))
 
     def extract_features(self):
         features = []

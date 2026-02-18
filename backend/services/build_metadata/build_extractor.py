@@ -40,7 +40,7 @@ class BuildMetadataExtractor:
             pkg_path = os.path.join(repo_root, "package.json")
             if os.path.exists(pkg_path):
                 try:
-                    with open(pkg_path, "r") as f:
+                    with open(pkg_path, "r", encoding="utf-8", errors="ignore") as f:
                         package_json = json.load(f)
                     for name, version in package_json.get("dependencies", {}).items():
                         deps.append({"name": name, "version": version, "type": "runtime"})

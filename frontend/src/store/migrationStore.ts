@@ -27,6 +27,7 @@ interface MigrationState {
     setSession: (response: CreateSessionResponse) => void;
     setLoading: (isLoading: boolean) => void;
     setError: (error: string | null) => void;
+    nextStep: () => void;
     reset: () => void;
 }
 
@@ -59,6 +60,7 @@ export const useMigrationStore = create<MigrationState>((set) => ({
         sessionId: response.session_id,
         step: 3
     }),
+    nextStep: () => set((state) => ({ step: state.step + 1 })),
     setLoading: (isLoading) => set({ isLoading }),
     setError: (error) => set({ error }),
     reset: () => set(initialState)

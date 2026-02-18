@@ -1,0 +1,69 @@
+{
+    "framework": "playwright",
+    "language": "typescript",
+    "engine": "playwrighttest",
+    "version": "1.0",
+    "variables": {
+        "PROJECT_NAME": {
+            "required": true,
+            "default": "playwright-project"
+        },
+        "BASE_URL": {
+            "required": false,
+            "default": "https://example.com"
+        },
+        "PLAYWRIGHT_VERSION": {
+            "required": false,
+            "default": "1.42.0"
+        }
+    },
+    "folders": [
+        {
+            "path": "src/pages",
+            "gitkeep": true
+        },
+        {
+            "path": "src/fixtures",
+            "gitkeep": true
+        },
+        {
+            "path": "src/utils",
+            "gitkeep": true
+        },
+        {
+            "path": "src/api",
+            "gitkeep": true
+        },
+        {
+            "path": "tests",
+            "gitkeep": true
+        }
+    ],
+    "files": [
+        {
+            "path": "package.json",
+            "type": "fragment",
+            "source": "package_json_playwright_ts.json"
+        },
+        {
+            "path": "playwright.config.ts",
+            "type": "fragment",
+            "source": "playwright_config_ts.txt"
+        },
+        {
+            "path": "tsconfig.json",
+            "type": "fragment",
+            "source": "tsconfig_ts.json"
+        },
+        {
+            "path": ".env",
+            "type": "inline",
+            "content": "BASE_URL={{BASE_URL}}"
+        },
+        {
+            "path": ".gitignore",
+            "type": "inline",
+            "content": "node_modules/\nplaywright-report/\n.env"
+        }
+    ]
+}
