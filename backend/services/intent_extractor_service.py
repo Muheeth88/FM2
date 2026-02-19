@@ -108,6 +108,10 @@ WRAPPER_ACTION_METHODS = {
     'isElementVisible': 'wait',
     'waitForFrameAndSwitch': 'switch_frame',
     'refresh': 'refresh',
+    'click': 'click',
+    'type': 'type',
+    'wait': 'wait',
+    'clear': 'clear',
 }
 
 # By strategy methods
@@ -133,6 +137,14 @@ ASSERTION_METHODS = {
     'assertNotNull': 'not_null',
     'fail': 'fail',
     'assertThat': 'that',
+    'expect': 'that',
+    'verify': 'that',
+    'verifyTrue': 'true',
+    'verifyFalse': 'false',
+    'verifyEquals': 'equals',
+    'verifyNotEquals': 'not_equals',
+    'verifyElementPresent': 'present',
+    'verifyElementNotPresent': 'not_present',
 }
 
 # API / RestAssured patterns
@@ -154,6 +166,10 @@ API_UTIL_METHODS = {
     'sendDELETE': 'DELETE',
     'sendDelete': 'DELETE',
     'sendPATCH': 'PATCH',
+    'getRequest': 'GET',
+    'postRequest': 'POST',
+    'putRequest': 'PUT',
+    'deleteRequest': 'DELETE',
 }
 
 # TestNG/JUnit lifecycle annotations
@@ -372,6 +388,7 @@ class ASTExtractor:
             'lifecycle_hooks': [],
             'control_flow': [],
             'referenced_locators': set(),  # Phase 2: Track used locators
+            'api_context': {},             # Phase 3: Context for fluent API builders
         }
 
         for path in file_paths:
@@ -616,245 +633,303 @@ class ASTExtractor:
                                     result, current_class: str = None,
                                     depth: int = 0, source_method: str = None):
         """
-        Extract real Selenium actions from a method body.
+        Extract real Selenium and API actions from a method body.
         Phase 3: Deep expansion depth increased to 5.
+        Now preserves execution order by visiting objects before parents.
         """
-        if depth > 5:  # prevent infinite recursion
+        if not body_node or depth > 5:  # prevent infinite recursion or null
             return
 
-        for node in self._walk_nodes(body_node):
+        # Use a list of statements/nodes to process in order
+        # We don't use _walk_nodes flat here because we want to control the recursion order
+        # to preserve AST execution order (e.g. for fluent APIs and sequential statements)
+        
+        for node in body_node.children:
+            # Skip noise nodes
+            if node.type in ('(', ')', '{', '}', ';', ','):
+                continue
+
             # ----- Control Flow Detection (Phase 3: Structured & Scoped) -----
-            if node.type in ('if_statement', 'for_statement', 'while_statement', 'try_statement'):
-                # Only capture control flow if we are in the root test method OR it's been explicitly relevant
-                # To reduce noise, PO-level control flow (retries, etc) is excluded unless depth == 0
-                if depth == 0 or any(k in node.type for k in ('if', 'for')):
+            if node.type in ('if_statement', 'for_statement', 'while_statement', 'try_statement', 'enhanced_for_statement'):
+                if depth == 0:
                     condition = ""
                     if node.type == 'if_statement':
                         cond_node = node.child_by_field_name('condition')
                         if cond_node:
                             condition = src[cond_node.start_byte:cond_node.end_byte].strip('()').strip()
-                    elif node.type == 'for_statement':
-                        # Find the loop header
+                    elif node.type in ('for_statement', 'enhanced_for_statement', 'while_statement'):
+                        # Find the header before the block
                         header = src[node.start_byte:node.end_byte].split('{')[0].strip()
                         condition = header
                     
                     result['control_flow'].append({
                         'type': 'control',
-                        'action': node.type.replace('_statement', ''),
+                        'action': node.type.replace('_statement', '').replace('enhanced_', ''),
                         'condition': condition,
-                        'scope': 'test' if depth == 0 else 'page_object',
+                        'scope': 'test',
                         'file': path,
                         'line': node.start_point[0] + 1
                     })
-
-            if node.type != 'method_invocation':
+                
+                # Recurse into blocks/consequents of control flow
+                for child in node.children:
+                    if child.type in ('block', 'if_statement', 'else'):
+                         self._extract_actions_from_body(path, src, child, result, current_class, depth, source_method)
                 continue
 
-            # Skip nodes we've already processed as part of a chain
-            # (e.g., don't re-process findElement when we already processed findElement().click())
+            # ----- Statement Level Processing -----
+            if node.type == 'expression_statement':
+                # Process the inner expression
+                for child in node.children:
+                    self._extract_actions_from_inner(path, src, child, result, body_node, current_class, depth, source_method)
+                continue
+            
+            # For other node types (variable declarations, etc), look for nested expressions
+            self._extract_actions_from_inner(path, src, node, result, body_node, current_class, depth, source_method)
 
-            name_node = node.child_by_field_name('name')
+    def _extract_actions_from_inner(self, path: str, src: str, node,
+                                    result, body_node, current_class: str = None,
+                                    depth: int = 0, source_method: str = None):
+        """Sub-routine to handle nested expressions inside statements while maintaining order."""
+        if not node:
+            return
+        
+        # 1. Recurse into "object" of method invocation FIRST (Execution Order)
+        if node.type == 'method_invocation':
             obj_node = node.child_by_field_name('object')
+            if obj_node:
+                self._extract_actions_from_inner(path, src, obj_node, result, body_node, current_class, depth, source_method)
+            
+            # Now process this actual call
+            self._process_single_method_call(path, src, node, result, body_node, current_class, depth, source_method)
+            
+            # Visit arguments
             args_node = node.child_by_field_name('arguments')
+            if args_node:
+                for arg in args_node.children:
+                    if arg.type not in ('(', ')', ','):
+                        self._extract_actions_from_inner(path, src, arg, result, body_node, current_class, depth, source_method)
+            return
 
-            method_name = src[name_node.start_byte:name_node.end_byte]
-            obj_text = src[obj_node.start_byte:obj_node.end_byte] if obj_node else ''
+        # 2. Variable declarations (int x = call())
+        if node.type == 'variable_declarator':
+            value_node = node.child_by_field_name('value')
+            if value_node:
+                self._extract_actions_from_inner(path, src, value_node, result, body_node, current_class, depth, source_method)
+            return
 
-            # ----- 1. driver.get(url) — Navigation -----
-            if method_name == 'get' and 'driver' in obj_text.lower():
-                url = self._extract_first_string_arg(src, args_node)
-                result['raw_steps'].append({
-                    'type': 'action',
-                    'action': 'navigate',
-                    'url': url or 'dynamic',
-                    'detail': {
-                        'fn': f'{obj_text}.get',
-                        'args': [url] if url else [],
-                        'file': path,
-                    },
-                    'source_method': source_method,
-                })
-                continue
+        # 3. Handle other containers
+        for child in node.children:
+            if child.type not in ('(', ')', '{', '}', ';', ','):
+                self._extract_actions_from_inner(path, src, child, result, body_node, current_class, depth, source_method)
 
-            # ----- 2. driver.findElement(By.xxx(...)).click/sendKeys -----
-            if method_name in SELENIUM_ACTION_METHODS and obj_node:
-                # Check if the object is a findElement call
-                locator = self._extract_chained_locator(src, obj_node, result, current_class)
-                if locator:
-                    action = SELENIUM_ACTION_METHODS[method_name]
-                    step = {
-                        'type': 'action',
-                        'action': action,
-                        'locator': locator,
-                        'detail': {
-                            'fn': f'findElement(...).{method_name}',
-                            'file': path,
-                        },
-                        'source_method': source_method,
-                    }
-                    # For sendKeys, extract the value
-                    if action == 'type':
-                        value = self._extract_first_string_arg(src, args_node)
-                        if value:
-                            step['value'] = value
-                        else:
-                            # Check if it's a variable/config reference
-                            value_text = self._extract_arg_text(src, args_node)
-                            step['value'] = 'dynamic'
-                            step['value_ref'] = value_text
-                    result['raw_steps'].append(step)
-                    continue
+    def _process_single_method_call(self, path: str, src: str, node,
+                                    result, body_node, current_class: str = None,
+                                    depth: int = 0, source_method: str = None):
+        """Process a single method_invocation node."""
+        name_node = node.child_by_field_name('name')
+        obj_node = node.child_by_field_name('object')
+        args_node = node.child_by_field_name('arguments')
 
-            # ----- 3. scriptAction.xxx(locatorField, ...) — Wrapper methods -----
-            if method_name in WRAPPER_ACTION_METHODS:
-                action = WRAPPER_ACTION_METHODS[method_name]
-                locator = self._resolve_locator_from_args(src, args_node, result, current_class)
+        if not name_node:
+            return
+
+        method_name = src[name_node.start_byte:name_node.end_byte]
+        obj_text = src[obj_node.start_byte:obj_node.end_byte] if obj_node else ''
+
+        # ----- 1. driver.get(url) — Navigation -----
+        if method_name == 'get' and 'driver' in obj_text.lower():
+            url = self._extract_first_string_arg(src, args_node)
+            result['raw_steps'].append({
+                'type': 'action',
+                'action': 'navigate',
+                'url': url or 'dynamic',
+                'detail': {
+                    'fn': f'{obj_text}.get',
+                    'args': [url] if url else [],
+                    'file': path,
+                },
+                'source_method': source_method,
+            })
+            return
+
+        # ----- 2. driver.findElement(By.xxx(...)).click/sendKeys -----
+        if method_name in SELENIUM_ACTION_METHODS and obj_node:
+            # Check if the object is a findElement call
+            locator = self._extract_chained_locator(src, obj_node, result, current_class)
+            if locator:
+                action = SELENIUM_ACTION_METHODS[method_name]
                 step = {
                     'type': 'action',
                     'action': action,
                     'locator': locator,
                     'detail': {
-                        'fn': f'{obj_text}.{method_name}',
+                        'fn': f'findElement(...).{method_name}',
                         'file': path,
                     },
                     'source_method': source_method,
                 }
-
-                # For inputText / type, extract the value (second arg)
+                # For sendKeys, extract the value
                 if action == 'type':
-                    value = self._extract_nth_string_arg(src, args_node, 1)
+                    value = self._extract_first_string_arg(src, args_node)
                     if value:
                         step['value'] = value
                     else:
-                        value_ref = self._extract_nth_arg_text(src, args_node, 1)
+                        value_text = self._extract_arg_text(src, args_node)
                         step['value'] = 'dynamic'
-                        if value_ref:
-                            step['value_ref'] = value_ref
-
+                        step['value_ref'] = value_text
                 result['raw_steps'].append(step)
-                continue
+                return
 
-            # ----- 4. Assert.xxx(...) — Assertions -----
-            if method_name in ASSERTION_METHODS and ('Assert' in obj_text or 'assert' in obj_text):
-                operator = ASSERTION_METHODS[method_name]
-                assertion = {
-                    'type': 'assertion',
-                    'operator': operator,
-                    'detail': {
-                        'fn': f'{obj_text}.{method_name}',
-                        'file': path,
-                    },
-                    'source_method': source_method,
-                }
+        # ----- 3. scriptAction.xxx(locatorField, ...) — Wrapper methods -----
+        if method_name in WRAPPER_ACTION_METHODS:
+            action = WRAPPER_ACTION_METHODS[method_name]
+            locator = self._resolve_locator_from_args(src, args_node, result, current_class)
+            step = {
+                'type': 'action',
+                'action': action,
+                'locator': locator,
+                'detail': {
+                    'fn': f'{obj_text}.{method_name}' if obj_text else method_name,
+                    'file': path,
+                },
+                'source_method': source_method,
+            }
 
-                # Extract left/right for assertEquals
-                if operator == 'equals' or operator == 'not_equals':
-                    left = self._extract_nth_arg_text(src, args_node, 0)
-                    right = self._extract_nth_arg_text(src, args_node, 1)
-                    assertion['left'] = left or 'unknown'
-                    assertion['right'] = right or 'unknown'
-                elif operator in ('true', 'false'):
-                    condition = self._extract_nth_arg_text(src, args_node, 0)
-                    assertion['condition'] = condition or 'unknown'
-                elif operator == 'fail':
-                    msg = self._extract_first_string_arg(src, args_node)
-                    assertion['message'] = msg or 'unknown'
-
-                result['assertions'].append(assertion)
-                continue
-
-            # ----- 4.1 RestAssured / APIUtil Extraction (Phase 3+) -----
-            # DSL entries: given(), when(), then(), RestAssured, request, response, apiUtil, spec
-            is_api_obj = any(k in obj_text.lower() for k in ('restassured', 'given', 'when', 'request', 'apiutil', 'spec', 'response'))
-            
-            api_method = None
-            arg_idx = 0
-            
-            if method_name in REST_ASSURED_METHODS:
-                if is_api_obj or (not obj_text and method_name in ('get', 'post', 'put', 'delete', 'patch')):
-                    # Extra guard for map.get()
-                    if method_name == 'get' and any(m in obj_text.lower() for m in ('data', 'map', 'props', 'testdata', 'json', 'extent')):
-                         continue
-                    api_method = REST_ASSURED_METHODS[method_name]
-                    arg_idx = 0
-            elif method_name in API_UTIL_METHODS:
-                if is_api_obj:
-                    api_method = API_UTIL_METHODS[method_name]
-                    # For sendPost(payload, endpoint, ...), endpoint is index 1.
-                    # For sendGet(endpoint, ...), endpoint is index 0.
-                    arg_idx = 1 if api_method in ('POST', 'PUT', 'PATCH') else 0
-
-            if api_method:
-                # Attempt to resolve identifier endpoints (e.g. APIConstants.LOGIN)
-                endpoint = self._extract_nth_string_arg(src, args_node, arg_idx)
-                if not endpoint:
-                    # Try to get raw text if it's a constant reference
-                    endpoint = self._extract_nth_arg_text(src, args_node, arg_idx) or 'dynamic'
-                
-                result['raw_steps'].append({
-                    'type': 'action',
-                    'action': 'http_request',
-                    'method': api_method,
-                    'endpoint': endpoint,
-                    'detail': {
-                        'fn': f'{obj_text}.{method_name}' if obj_text else method_name,
-                        'file': path,
-                    },
-                    'source_method': source_method,
-                })
-                continue
-            
-            if method_name == 'body' and ('given' in obj_text or 'when' in obj_text):
-                # Capture payload reference
-                payload = self._extract_arg_text(src, args_node)
-                if result['raw_steps'] and result['raw_steps'][-1]['action'] == 'http_request':
-                    result['raw_steps'][-1]['payload'] = payload
-
-            # ----- 5. Page Object method calls — cross-file expansion -----
-            if self._workspace_index and depth < 5:
-                # Try to resolve the class of the object
-                resolved_class = None
-                if obj_node:
-                    resolved_class = self._resolve_object_class(src, obj_node, body_node, current_class)
+            # For inputText / type, extract the value (second arg usually but can vary)
+            if action == 'type':
+                # Heuristic: try second arg first, then look for any string arg
+                value = self._extract_nth_string_arg(src, args_node, 1) or self._extract_first_string_arg(src, args_node)
+                if value:
+                    step['value'] = value
                 else:
-                    # Implicit 'this' - check if current_class has this method
-                    if current_class and method_name in self._workspace_index.class_methods.get(current_class, {}):
-                        resolved_class = current_class
-                
-                if resolved_class and resolved_class in self._workspace_index.class_methods:
-                    method_info = self._workspace_index.class_methods[resolved_class].get(method_name)
+                    value_ref = self._extract_nth_arg_text(src, args_node, 1) or self._extract_arg_text(src, args_node)
+                    step['value'] = 'dynamic'
+                    if value_ref:
+                        step['value_ref'] = value_ref
+
+            result['raw_steps'].append(step)
+            return
+
+        # ----- 4. Assert.xxx(...) — Assertions (Fix: support static imports) -----
+        is_assertion = (
+            method_name in ASSERTION_METHODS and 
+            (not obj_text or 'Assert' in obj_text or 'assert' in obj_text or 'expect' in obj_text or 'verify' in obj_text)
+        )
+        if is_assertion:
+            operator = ASSERTION_METHODS[method_name]
+            assertion = {
+                'type': 'assertion',
+                'operator': operator,
+                'detail': {
+                    'fn': f'{obj_text}.{method_name}' if obj_text else method_name,
+                    'file': path,
+                },
+                'source_method': source_method,
+            }
+
+            # Extract left/right/condition
+            if operator in ('equals', 'not_equals'):
+                # Handle Assert.assertEquals(actual, expected) or (expected, actual, delta) etc.
+                assertion['left'] = self._extract_nth_arg_text(src, args_node, 0) or 'unknown'
+                assertion['right'] = self._extract_nth_arg_text(src, args_node, 1) or 'unknown'
+            elif operator in ('true', 'false', 'present', 'not_present'):
+                assertion['condition'] = self._extract_nth_arg_text(src, args_node, 0) or 'unknown'
+            elif operator == 'fail':
+                assertion['message'] = self._extract_first_string_arg(src, args_node) or 'unknown'
+            
+            result['assertions'].append(assertion)
+            return
+
+        # ----- 5. API / RestAssured Modelling -----
+        is_api_obj = any(k in obj_text.lower() for k in ('restassured', 'given', 'when', 'request', 'apiutil', 'spec', 'response'))
+        api_method = None
+        endpoint_idx = 0
+        
+        if method_name in REST_ASSURED_METHODS:
+            if is_api_obj or not obj_text:
+                api_method = REST_ASSURED_METHODS[method_name]
+                endpoint_idx = 0
+        elif method_name in API_UTIL_METHODS:
+            if is_api_obj or not obj_text:
+                api_method = API_UTIL_METHODS[method_name]
+                # sendPost(url, body) or sendPost(body, url)? Usually url first or payload first.
+                endpoint_idx = 1 if api_method in ('POST', 'PUT', 'PATCH') and len(args_node.children) > 3 else 0
+
+        # API fluent handlers: .body(), .header(), .param()
+        if method_name == 'body':
+            result['api_context']['payload'] = self._extract_arg_text(src, args_node)
+        elif method_name in ('header', 'headers'):
+            result['api_context'].setdefault('headers', []).append(self._extract_arg_text(src, args_node))
+        elif method_name in ('param', 'params', 'queryParam'):
+             result['api_context'].setdefault('params', []).append(self._extract_arg_text(src, args_node))
+
+        if api_method:
+            endpoint = self._extract_nth_string_arg(src, args_node, endpoint_idx) or self._extract_nth_arg_text(src, args_node, endpoint_idx) or 'dynamic'
+            step = {
+                'type': 'action',
+                'action': 'http_request',
+                'method': api_method,
+                'endpoint': endpoint,
+                'detail': {
+                    'fn': f'{obj_text}.{method_name}' if obj_text else method_name,
+                    'file': path,
+                },
+                'source_method': source_method,
+            }
+            # Consume context
+            if 'payload' in result['api_context']:
+                step['payload'] = result['api_context'].pop('payload')
+            if 'headers' in result['api_context']:
+                step['headers'] = result['api_context'].pop('headers')
+            if 'params' in result['api_context']:
+                step['params'] = result['api_context'].pop('params')
+
+            result['raw_steps'].append(step)
+            return
+
+        # ----- 6. Page Object expansion (Phase 3+) -----
+        if self._workspace_index and depth < 5:
+            resolved_class = None
+            if obj_node:
+                resolved_class = self._resolve_object_class(src, obj_node, body_node, current_class)
+            else:
+                if current_class and method_name in self._workspace_index.class_methods.get(current_class, {}):
+                    resolved_class = current_class
+            
+            if resolved_class and resolved_class in self._workspace_index.class_methods:
+                method_info = self._workspace_index.class_methods[resolved_class].get(method_name)
+                if method_info:
+                    po_src = method_info['src']
+                    po_node = method_info['node']
+                    po_body = po_node.child_by_field_name('body')
+                    po_file = self._workspace_index.class_to_file.get(resolved_class, path)
+                    if po_body:
+                        self._extract_actions_from_body(
+                            po_file, po_src, po_body, result,
+                            current_class=resolved_class,
+                            depth=depth + 1,
+                            source_method=f'{resolved_class}.{method_name}'
+                        )
+                    return
+
+                # Also check parent class methods
+                parent_class = self._workspace_index.class_parents.get(resolved_class)
+                if parent_class and parent_class in self._workspace_index.class_methods:
+                    method_info = self._workspace_index.class_methods[parent_class].get(method_name)
                     if method_info:
-                        # Expand the page object method
                         po_src = method_info['src']
                         po_node = method_info['node']
                         po_body = po_node.child_by_field_name('body')
-                        po_file = self._workspace_index.class_to_file.get(resolved_class, path)
+                        po_file = self._workspace_index.class_to_file.get(parent_class, path)
                         if po_body:
                             self._extract_actions_from_body(
                                 po_file, po_src, po_body, result,
-                                current_class=resolved_class,
+                                current_class=parent_class,
                                 depth=depth + 1,
-                                source_method=f'{resolved_class}.{method_name}'
+                                source_method=f'{parent_class}.{method_name}'
                             )
-                        continue
-
-                    # Also check parent class methods
-                    parent_class = self._workspace_index.class_parents.get(resolved_class)
-                    if parent_class and parent_class in self._workspace_index.class_methods:
-                        method_info = self._workspace_index.class_methods[parent_class].get(method_name)
-                        if method_info:
-                            po_src = method_info['src']
-                            po_node = method_info['node']
-                            po_body = po_node.child_by_field_name('body')
-                            po_file = self._workspace_index.class_to_file.get(parent_class, path)
-                            if po_body:
-                                self._extract_actions_from_body(
-                                    po_file, po_src, po_body, result,
-                                    current_class=parent_class,
-                                    depth=depth + 1,
-                                    source_method=f'{parent_class}.{method_name}'
-                                )
-                            continue
+                        return
 
     def _extract_chained_locator(self, src: str, obj_node, result, current_class: str = None) -> Optional[Dict[str, str]]:
         """
@@ -1071,6 +1146,10 @@ class IntentNormalizer:
                     step['endpoint'] = s.get('endpoint')
                     if s.get('payload'):
                         step['payload'] = s['payload']
+                    if s.get('headers'):
+                        step['headers'] = s['headers']
+                    if s.get('params'):
+                        step['params'] = s['params']
 
                 # Add source method tracing as metadata (Phase 6: Clean Canonical Core)
                 if s.get('source_method'):
@@ -1144,11 +1223,53 @@ class IntentNormalizer:
             'lifecycle_hooks': lifecycle_hooks,
             'control_flow': filtered_control_flow,
             'validation_warnings': [],
+            'semantic_flags': [],
         }
 
-        # Phase 2: Warn if no steps found
-        if not steps and not assertions:
-            normalized['validation_warnings'].append("No executable steps or assertions found in feature.")
+        # ----- 1. Deterministic Validation Warnings -----
+        
+        # NO_ASSERTION_PRESENT
+        if not assertions:
+            normalized['validation_warnings'].append("NO_ASSERTION_PRESENT")
+            normalized['semantic_flags'].append("WEAK_TEST_STRUCTURE")
+
+        # DUPLICATE_WAIT
+        last_wait_locator = None
+        for s in steps:
+            if s.get('action') == 'wait':
+                loc = s.get('locator')
+                if loc and loc == last_wait_locator:
+                    normalized['validation_warnings'].append("DUPLICATE_WAIT")
+                last_wait_locator = loc
+            else:
+                last_wait_locator = None
+
+        # DYNAMIC_URL
+        for s in steps:
+            if s.get('action') == 'navigate' and s.get('url') == 'dynamic':
+                normalized['validation_warnings'].append("DYNAMIC_URL")
+
+        # MISSING_POST_ACTION_VALIDATION
+        # If the last step is an action without a following assertion
+        if steps and not assertions:
+             normalized['validation_warnings'].append("MISSING_POST_ACTION_VALIDATION")
+
+        # ----- 2. Step Ordering Check (Deterministic heuristic) -----
+        # Check for suspicious ordering: typing password before email
+        # This is a bit specific but the user requested it.
+        email_step_idx = -1
+        password_step_idx = -1
+        for i, s in enumerate(steps):
+            if s.get('action') == 'type':
+                val = str(s.get('value', '')).lower()
+                ref = str(s.get('value_ref', '')).lower()
+                if 'email' in val or 'email' in ref:
+                    email_step_idx = i
+                if 'password' in val or 'pass' in ref:
+                    password_step_idx = i
+        
+        if password_step_idx != -1 and email_step_idx != -1 and password_step_idx < email_step_idx:
+            normalized['validation_warnings'].append("SUSPICIOUS_STEP_ORDERING")
 
         return normalized
 
