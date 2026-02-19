@@ -1,0 +1,35 @@
+using NUnit.Framework;
+using OpenQA.Selenium;
+using OpenQA.Selenium.Chrome;
+using WebDriverManager;
+using WebDriverManager.DriverConfigs.Impl;
+
+namespace Tests
+{
+    public class ExampleTest
+    {
+        private IWebDriver _driver;
+
+        [SetUp]
+        public void Setup()
+        {
+            new DriverManager().SetUpDriver(new ChromeConfig());
+            var options = new ChromeOptions();
+            options.AddArgument("--headless");
+            _driver = new ChromeDriver(options);
+        }
+
+        [Test]
+        public void TestExample()
+        {
+            _driver.Navigate().GoToUrl("https://example.com");
+            Assert.That(_driver.Title, Does.Contain("Example"));
+        }
+
+        [TearDown]
+        public void Teardown()
+        {
+            _driver?.Quit();
+        }
+    }
+}

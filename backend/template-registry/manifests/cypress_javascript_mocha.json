@@ -29,6 +29,29 @@
             "path": "cypress.config.js",
             "type": "fragment",
             "source": "cypress_config_js.txt"
+        },
+        {
+            "path": "cypress/e2e/example.cy.js",
+            "type": "fragment",
+            "source": "example_cy_js.txt"
+        },
+        {
+            "path": ".github/workflows/cypress.yml",
+            "type": "fragment",
+            "source": "ci_cypress.yml"
+        },
+        {
+            "path": "README.md",
+            "type": "fragment",
+            "source": "readme_cypress.md"
+        },
+        {
+            "path": ".gitignore",
+            "type": "inline",
+            "content": "node_modules/\ncypress/videos/\ncypress/screenshots/\n.env"
         }
+    ],
+    "post_install": [
+        "npm install"
     ]
 }

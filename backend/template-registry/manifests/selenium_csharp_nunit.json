@@ -28,6 +28,26 @@
             "path": "Framework.csproj",
             "type": "fragment",
             "source": "csproj_nunit.txt"
+        },
+        {
+            "path": "tests/ExampleTest.cs",
+            "type": "fragment",
+            "source": "example_test_cs.txt"
+        },
+        {
+            "path": ".github/workflows/selenium.yml",
+            "type": "fragment",
+            "source": "ci_selenium_csharp.yml"
+        },
+        {
+            "path": "README.md",
+            "type": "fragment",
+            "source": "readme_selenium_csharp.md"
+        },
+        {
+            "path": ".gitignore",
+            "type": "inline",
+            "content": "bin/\nobj/\n.vs/\n.vscode/\n.env"
         }
     ]
 }

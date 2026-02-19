@@ -56,6 +56,26 @@
             "source": "tsconfig_ts.json"
         },
         {
+            "path": "tests/example.spec.ts",
+            "type": "fragment",
+            "source": "example_spec_ts.txt"
+        },
+        {
+            "path": ".github/workflows/playwright.yml",
+            "type": "fragment",
+            "source": "ci_playwright.yml"
+        },
+        {
+            "path": "README.md",
+            "type": "fragment",
+            "source": "readme_playwright.md"
+        },
+        {
+            "path": "src/fixtures/baseTest.ts",
+            "type": "fragment",
+            "source": "base_test_ts.txt"
+        },
+        {
             "path": ".env",
             "type": "inline",
             "content": "BASE_URL={{BASE_URL}}"
@@ -63,7 +83,11 @@
         {
             "path": ".gitignore",
             "type": "inline",
-            "content": "node_modules/\nplaywright-report/\n.env"
+            "content": "node_modules/\ntest-results/\nplaywright-report/\n.env"
         }
+    ],
+    "post_install": [
+        "npm install",
+        "npx playwright install"
     ]
 }

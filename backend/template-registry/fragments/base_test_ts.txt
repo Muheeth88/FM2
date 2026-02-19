@@ -1,0 +1,8 @@
+import { test as base } from '@playwright/test';
+
+// Define custom fixtures here
+export const test = base.extend({
+  // Add fixtures if needed
+});
+
+export { expect } from '@playwright/test';

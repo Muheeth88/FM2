@@ -39,9 +39,24 @@
             "source": "testng_xml.txt"
         },
         {
+            "path": "src/test/java/tests/ExampleTest.java",
+            "type": "fragment",
+            "source": "example_test_java.txt"
+        },
+        {
+            "path": ".github/workflows/selenium.yml",
+            "type": "fragment",
+            "source": "ci_selenium_java.yml"
+        },
+        {
+            "path": "README.md",
+            "type": "fragment",
+            "source": "readme_selenium_java.md"
+        },
+        {
             "path": ".gitignore",
             "type": "inline",
-            "content": "target/\n*.iml"
+            "content": "target/\n*.iml\n.idea/\n.vscode/\n.env"
         }
     ]
 }

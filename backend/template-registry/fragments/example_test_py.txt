@@ -1,0 +1,9 @@
+import pytest
+from playwright.sync_api import Page, expect
+import os
+import re
+
+def test_example(page: Page):
+    base_url = os.getenv('BASE_URL', 'https://example.com')
+    page.goto(base_url)
+    expect(page).to_have_title(re.compile("Example"))

@@ -1,0 +1,6 @@
+describe('Example Test', () => {
+  it('loads the homepage', () => {
+    cy.visit('/');
+    cy.title().should('include', 'Example');
+  });
+});

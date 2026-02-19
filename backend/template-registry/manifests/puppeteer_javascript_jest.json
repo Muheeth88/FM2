@@ -1,0 +1,65 @@
+{
+    "framework": "puppeteer",
+    "language": "javascript",
+    "engine": "jest",
+    "version": "1.0",
+    "variables": {
+        "PROJECT_NAME": {
+            "required": true,
+            "default": "puppeteer-project"
+        },
+        "PUPPETEER_VERSION": {
+            "required": false,
+            "default": "21.0.0"
+        },
+        "JEST_VERSION": {
+            "required": false,
+            "default": "29.0.0"
+        }
+    },
+    "folders": [
+        {
+            "path": "tests",
+            "gitkeep": true
+        },
+        {
+            "path": "pages",
+            "gitkeep": true
+        }
+    ],
+    "files": [
+        {
+            "path": "package.json",
+            "type": "fragment",
+            "source": "package_json_puppeteer.json"
+        },
+        {
+            "path": "tests/example.test.js",
+            "type": "fragment",
+            "source": "example_puppeteer_js.txt"
+        },
+        {
+            "path": ".github/workflows/puppeteer.yml",
+            "type": "fragment",
+            "source": "ci_puppeteer.yml"
+        },
+        {
+            "path": "README.md",
+            "type": "fragment",
+            "source": "readme_puppeteer.md"
+        },
+        {
+            "path": "jest.config.js",
+            "type": "inline",
+            "content": "module.exports = {\n  testTimeout: 30000,\n  verbose: true\n};"
+        },
+        {
+            "path": ".gitignore",
+            "type": "inline",
+            "content": "node_modules/\n.env"
+        }
+    ],
+    "post_install": [
+        "npm install"
+    ]
+}

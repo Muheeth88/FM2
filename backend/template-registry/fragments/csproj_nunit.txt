@@ -7,6 +7,8 @@
     <PackageReference Include="Selenium.WebDriver" Version="{{SELENIUM_VERSION}}" />
     <PackageReference Include="NUnit" Version="{{NUNIT_VERSION}}" />
     <PackageReference Include="NUnit3TestAdapter" Version="4.5.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.7.2" />
+    <PackageReference Include="WebDriverManager" Version="2.17.1" />
   </ItemGroup>
 </Project>
 

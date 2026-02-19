@@ -1,0 +1,21 @@
+const puppeteer = require('puppeteer');
+
+describe('Example Test', () => {
+  let browser;
+  let page;
+
+  beforeAll(async () => {
+    browser = await puppeteer.launch({ headless: "new" });
+    page = await browser.newPage();
+  });
+
+  afterAll(async () => {
+    await browser.close();
+  });
+
+  test('loads example.com', async () => {
+    await page.goto('https://example.com');
+    const title = await page.title();
+    expect(title).toContain('Example');
+  });
+});

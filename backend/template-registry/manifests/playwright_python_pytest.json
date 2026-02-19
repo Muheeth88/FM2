@@ -32,12 +32,31 @@
         {
             "path": "pytest.ini",
             "type": "inline",
-            "content": "[pytest]\naddopts = -v"
+            "content": "[pytest]\naddopts = -v --base-url {{BASE_URL}}\ntestpaths = tests"
+        },
+        {
+            "path": "tests/test_example.py",
+            "type": "fragment",
+            "source": "example_test_py.txt"
+        },
+        {
+            "path": ".github/workflows/playwright.yml",
+            "type": "fragment",
+            "source": "ci_playwright_py.yml"
+        },
+        {
+            "path": "README.md",
+            "type": "fragment",
+            "source": "readme_playwright_py.md"
         },
         {
             "path": ".gitignore",
             "type": "inline",
-            "content": "__pycache__/\n.env"
+            "content": "__pycache__/\n.pytest_cache/\n.env\nvenv/\n.venv/\n*.pyc"
         }
+    ],
+    "post_install": [
+        "pip install -r requirements.txt",
+        "playwright install"
     ]
 }
