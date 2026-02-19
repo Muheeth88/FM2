@@ -5,10 +5,12 @@ from openai import OpenAI
 
 logger = logging.getLogger(__name__)
 
+import os
+
 # ===============================
 # CONFIG
 # ===============================
-OPENAI_API_KEY = ""
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 MODEL = "gpt-4o-mini"
 ENRICHMENT_VERSION = "v1"
 
