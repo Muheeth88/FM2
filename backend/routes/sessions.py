@@ -54,3 +54,14 @@ async def create_migration_run(request: CreateRunRequest):
     except Exception as e:
         logger.error(f"Error creating migration run: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Run creation failed: {str(e)}")
+
+@router.post("/{session_id}/bootstrap")
+async def bootstrap_session(session_id: str):
+    """
+    Triggers the target repository bootstrap process.
+    """
+    try:
+        return SessionService.bootstrap_target(session_id)
+    except Exception as e:
+        logger.error(f"Bootstrap failed: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))

@@ -89,6 +89,31 @@ function App() {
     }
   }
 
+  const { foundationStatus, setFoundationStatus } = useMigrationStore();
+
+  useEffect(() => {
+    if (stream.foundationStatus) {
+      setFoundationStatus(stream.foundationStatus);
+    }
+  }, [stream.foundationStatus]);
+
+  const [bootstrapping, setBootstrapping] = useState(false);
+
+  const handleBootstrap = async () => {
+    if (!sessionId) return;
+    setBootstrapping(true);
+    try {
+      await api.bootstrap(sessionId);
+      setFoundationStatus('SUCCESS');
+      alert("Basic foundation generated successfully!");
+    } catch (err: any) {
+      console.error("Bootstrap failed", err);
+      alert("Failed to generate foundation: " + (err.response?.data?.detail || err.message));
+    } finally {
+      setBootstrapping(false);
+    }
+  };
+
   const toggleFeature = (featureId: string) => {
     setSelectedFeatures(prev =>
       prev.includes(featureId) ? prev.filter(f => f !== featureId) : [...prev, featureId]
@@ -206,15 +231,28 @@ function App() {
                     </div>
 
                     {activeTab === 'features' && (
-                      <button
-                        onClick={handleProcessMigration}
-                        disabled={selectedFeatures.length === 0 || processingMigration}
-                        className="flex items-center gap-3 px-8 py-4 bg-green-600 hover:bg-green-700 disabled:bg-gray-200 text-white font-black rounded-2xl shadow-xl shadow-green-100 transition-all disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-[1.02] active:scale-[0.98]"
-                      >
-                        {processingMigration ? <Loader2 className="w-5 h-5 animate-spin" /> : null}
-                        {processingMigration ? "Extracting Intents..." : `Initiate Migration (${selectedFeatures.length})`}
-                        {!processingMigration && <ChevronRight className="w-6 h-6" />}
-                      </button>
+                      <div className="flex items-center gap-4">
+                        {foundationStatus === 'MISSING' && (
+                          <button
+                            onClick={handleBootstrap}
+                            disabled={bootstrapping}
+                            className="flex items-center gap-2 px-6 py-4 bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-400 text-white font-black rounded-2xl shadow-xl shadow-indigo-100 transition-all transform hover:scale-[1.02] active:scale-[0.98]"
+                          >
+                            {bootstrapping ? <Loader2 className="w-5 h-5 animate-spin" /> : null}
+                            {bootstrapping ? "Generating..." : "Generate Basic Foundation"}
+                          </button>
+                        )}
+
+                        <button
+                          onClick={handleProcessMigration}
+                          disabled={selectedFeatures.length === 0 || processingMigration || foundationStatus === 'MISSING'}
+                          className="flex items-center gap-3 px-8 py-4 bg-green-600 hover:bg-green-700 disabled:bg-gray-200 text-white font-black rounded-2xl shadow-xl shadow-green-100 transition-all disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-[1.02] active:scale-[0.98]"
+                        >
+                          {processingMigration ? <Loader2 className="w-5 h-5 animate-spin" /> : null}
+                          {processingMigration ? "Extracting Intents..." : `Initiate Migration (${selectedFeatures.length})`}
+                          {!processingMigration && <ChevronRight className="w-6 h-6" />}
+                        </button>
+                      </div>
                     )}
                   </div>
 

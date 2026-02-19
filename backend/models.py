@@ -36,6 +36,9 @@ class CreateSessionRequest(BaseModel):
     target_repo_visibility: Optional[str] = "public"
     source_framework: str
     target_framework: str
+    target_framework_id: Optional[str] = None
+    target_language: Optional[str] = None
+    target_engine: Optional[str] = None
     base_branch: str
     pat: Optional[str] = None
 

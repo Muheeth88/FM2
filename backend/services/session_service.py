@@ -46,15 +46,24 @@ class SessionService:
             conn = get_db_connection()
             cursor = conn.cursor()
             
+            # Identify target framework details (normalized)
+            target_fw_id = (request.target_framework_id or "playwright").lower().replace(" ", "")
+            target_lang = (request.target_language or "typescript").lower().replace(" ", "")
+            target_engine = (request.target_engine or "playwrighttest").lower().replace(" ", "")
+            
+            logger.info(f"Target Setup: FW={target_fw_id}, Lang={target_lang}, Engine={target_engine}")
+            
             cursor.execute('''
                 INSERT INTO sessions (
                     id, repo_root, language, framework, build_system,
                     source_repo_url, target_repo_url, target_repo_mode,
-                    target_repo_name, target_repo_owner, base_branch, status
+                    target_repo_name, target_repo_owner, base_branch, status,
+                    target_framework, target_framework_id, target_language, target_engine
                 ) VALUES (
                     :id, :repo_root, :language, :framework, :build_system,
                     :source_repo_url, :target_repo_url, :target_repo_mode,
-                    :target_repo_name, :target_repo_owner, :base_branch, :status
+                    :target_repo_name, :target_repo_owner, :base_branch, :status,
+                    :target_framework, :target_fw_id, :target_lang, :target_engine
                 )
             ''', {
                 "id": session_id,
@@ -68,7 +77,11 @@ class SessionService:
                 "target_repo_name": request.target_repo_name,
                 "target_repo_owner": request.target_repo_owner,
                 "base_branch": request.base_branch,
-                "status": "INITIALIZED"
+                "status": "INITIALIZED",
+                "target_framework": request.target_framework,
+                "target_fw_id": target_fw_id,
+                "target_lang": target_lang,
+                "target_engine": target_engine
             })
             
             conn.commit()
@@ -221,5 +234,62 @@ class SessionService:
         except Exception as e:
             logger.error(f"Failed to create migration run: {str(e)}")
             raise RuntimeError(f"Run creation failed: {str(e)}")
+        finally:
+            conn.close()
+
+    @staticmethod
+    def bootstrap_target(session_id: str) -> dict:
+        """
+        Initializes the target repository with the foundational setup.
+        """
+        from services.target_bootstrap_service import TargetBootstrapService
+        from services.workspace_service import WorkspaceService
+        import os
+        from pathlib import Path
+
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        
+        try:
+            cursor.execute("SELECT target_framework_id, target_language, target_engine FROM sessions WHERE id = ?", (session_id,))
+            session = cursor.fetchone()
+            if not session:
+                raise ValueError("Session not found")
+            
+            # Use stored values or defaults (normalized)
+            target_framework = (session["target_framework_id"] or "playwright").lower().replace(" ", "")
+            target_lang = (session["target_language"] or "typescript").lower().replace(" ", "")
+            target_engine = (session["target_engine"] or "playwrighttest").lower().replace(" ", "")
+            
+            logger.info(f"Bootstrapping target: FW={target_framework}, Lang={target_lang}, Engine={target_engine}")
+            
+            ws_paths = WorkspaceService.initialize_workspace(session_id)
+            target_path = ws_paths["target_path"]
+            
+            current_dir = os.path.dirname(os.path.abspath(__file__))
+            registry_root = os.path.join(os.path.dirname(current_dir), "template-registry")
+            
+            bootstrapper = TargetBootstrapService(registry_root)
+            
+            variables = {
+                "PROJECT_NAME": f"migrated-{session_id[:8]}",
+                "BASE_URL": "https://example.com" # Default
+            }
+            
+            result = bootstrapper.bootstrap(
+                target_framework, target_lang, target_engine, target_path, variables
+            )
+            
+            if result["status"] == "SUCCESS":
+                cursor.execute(
+                    "UPDATE sessions SET foundation_status = 'SUCCESS' WHERE id = ?",
+                    (session_id,)
+                )
+                conn.commit()
+            
+            return result
+        except Exception as e:
+            logger.error(f"Bootstrap failed for session {session_id}: {str(e)}")
+            raise e
         finally:
             conn.close()

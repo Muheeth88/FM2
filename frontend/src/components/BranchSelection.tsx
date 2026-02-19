@@ -22,6 +22,9 @@ const BranchSelection: React.FC = () => {
                 target_repo_visibility: repoDetails.targetRepoVisibility || undefined,
                 source_framework: repoDetails.sourceFramework,
                 target_framework: repoDetails.targetFramework,
+                target_framework_id: repoDetails.targetFrameworkId,
+                target_language: repoDetails.targetLanguage,
+                target_engine: repoDetails.targetEngine,
                 base_branch: selectedBranch,
                 pat: repoDetails.pat || undefined,
             });

@@ -34,7 +34,12 @@ def init_db():
             progress INTEGER DEFAULT 0,
             error_message TEXT,
             error_trace TEXT,
-            updated_at TIMESTAMP
+            updated_at TIMESTAMP,
+            foundation_status TEXT DEFAULT 'PENDING',
+            target_framework TEXT,
+            target_framework_id TEXT,
+            target_language TEXT,
+            target_engine TEXT
         )''', "sessions"),
         ('''CREATE TABLE IF NOT EXISTS features (
             id TEXT PRIMARY KEY,
@@ -165,6 +170,11 @@ def init_db():
         ("ALTER TABLE features ADD COLUMN hooks TEXT", "features.hooks"),
         ("ALTER TABLE dependency_nodes ADD COLUMN package_name TEXT", "dependency_nodes.package_name"),
         ("ALTER TABLE features ADD COLUMN file_hash TEXT", "features.file_hash"),
+        ("ALTER TABLE sessions ADD COLUMN foundation_status TEXT DEFAULT 'PENDING'", "sessions.foundation_status"),
+        ("ALTER TABLE sessions ADD COLUMN target_framework TEXT", "sessions.target_framework"),
+        ("ALTER TABLE sessions ADD COLUMN target_framework_id TEXT", "sessions.target_framework_id"),
+        ("ALTER TABLE sessions ADD COLUMN target_language TEXT", "sessions.target_language"),
+        ("ALTER TABLE sessions ADD COLUMN target_engine TEXT", "sessions.target_engine"),
         ("ALTER TABLE feature_dependencies ADD COLUMN file_hash TEXT", "feature_dependencies.file_hash"),
         ("ALTER TABLE feature_shared_modules ADD COLUMN file_hash TEXT", "feature_shared_modules.file_hash"),
         ("ALTER TABLE feature_config_dependencies ADD COLUMN file_hash TEXT", "feature_config_dependencies.file_hash"),

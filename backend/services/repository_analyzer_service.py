@@ -296,6 +296,11 @@ class RepositoryAnalyzerService:
             await self._emit_progress(session_id, "Status Detection", 98, "Determining feature migration status")
             await self._update_feature_statuses(session_id, repo_root)
 
+            # 12. Foundation Check
+            # --------------------------
+            await self._emit_progress(session_id, "Foundation Check", 99, "Checking target repository foundation")
+            await self._check_foundation_status(session_id)
+
             # FINAL: Set status to ANALYZED
             self.db.execute("UPDATE sessions SET status = 'ANALYZED', progress = 100 WHERE id = ?", (session_id,))
             await self._emit_complete(session_id)
@@ -344,8 +349,8 @@ class RepositoryAnalyzerService:
 
     def _insert_session(self, session_id, repo_root, language, framework, build_system):
         self.db.execute(
-            "INSERT OR REPLACE INTO sessions (id, repo_root, language, framework, build_system, status) VALUES (?, ?, ?, ?, ?, 'ANALYZING')",
-            (session_id, repo_root, language, framework, build_system)
+            "UPDATE sessions SET repo_root = ?, language = ?, framework = ?, build_system = ?, status = 'ANALYZING' WHERE id = ?",
+            (repo_root, language, framework, build_system, session_id)
         )
 
     # ==========================================================
@@ -700,3 +705,59 @@ class RepositoryAnalyzerService:
             )
 
             await self._emit_log(session_id, f"Feature '{feat['feature_name']}' status: {status}")
+
+    async def _check_foundation_status(self, session_id: str):
+        """
+        Check if the target repository has the base setup/foundation.
+        """
+        from services.target_bootstrap_service import TargetBootstrapService
+        from services.workspace_service import WorkspaceService
+        
+        session = self.db.fetchone(
+            "SELECT target_repo_url, framework, target_framework_id, target_language, target_engine FROM sessions WHERE id = ?", 
+            (session_id,)
+        )
+        if not session:
+            return
+
+        # Use stored values or defaults
+        target_framework = session["target_framework_id"] 
+        target_lang = session["target_language"] 
+        target_engine = session["target_engine"] 
+        logger.info(f"Checking foundation for: {target_framework} / {target_lang} / {target_engine}")
+        await self._emit_log(session_id, f"Checking foundation for: {target_framework} / {target_lang} / {target_engine}")
+        
+        # In a real scenario, these should come from the session or request metadata
+        # Let's try to get them from the session if they were saved during creation
+        # (Though current sessions table doesn't have target_framework/lang yet in all cases)
+        
+        session_path = WorkspaceService.get_session_path(session_id)
+        target_root = os.path.join(session_path, "target")
+        
+        # registry_root needs to be resolved. It's usually in backend/template-registry
+        # Get absolute path to template-registry
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        registry_root = os.path.join(os.path.dirname(current_dir), "template-registry")
+        
+        bootstrapper = TargetBootstrapService(registry_root)
+        check_result = bootstrapper.check_foundation(
+            target_framework, target_lang, target_engine, target_root
+        )
+        
+        status = check_result["status"]
+        self.db.execute(
+            "UPDATE sessions SET foundation_status = ? WHERE id = ?",
+            (status, session_id)
+        )
+        
+        await self._emit_log(session_id, f"Target foundation status: {status}")
+        
+        if self.ws_manager:
+            await self.ws_manager.send(session_id, {
+                "type": "foundation_status",
+                "session_id": session_id,
+                "status": status,
+                "is_complete": check_result.get("is_complete", False),
+                "missing_files": check_result.get("missing_files", []),
+                "missing_folders": check_result.get("missing_folders", [])
+            })

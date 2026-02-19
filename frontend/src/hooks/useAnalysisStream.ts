@@ -13,6 +13,7 @@ interface AnalysisStreamState {
     trace: string | null;
     isComplete: boolean;
     isConnected: boolean;
+    foundationStatus?: 'PENDING' | 'SUCCESS' | 'MISSING' | 'ERROR';
 }
 
 export function useAnalysisStream(sessionId: string | null, enabled: boolean) {
@@ -91,6 +92,13 @@ export function useAnalysisStream(sessionId: string | null, enabled: boolean) {
                             progress: 100,
                             isComplete: true,
                             logs: [...prev.logs, '✅ Analysis completed successfully'],
+                        }));
+                        break;
+
+                    case 'foundation_status':
+                        setState(prev => ({
+                            ...prev,
+                            foundationStatus: msg.status
                         }));
                         break;
                 }

@@ -39,6 +39,9 @@ export interface CreateSessionRequest {
     target_repo_visibility?: 'public' | 'private';
     source_framework: string;
     target_framework: string;
+    target_framework_id?: string;
+    target_language?: string;
+    target_engine?: string;
     base_branch: string;
     pat?: string;
 }
@@ -128,12 +131,13 @@ export interface AnalysisResponse {
 
 
 export interface WSProgressMessage {
-    type: 'progress' | 'log' | 'error' | 'complete';
+    type: 'progress' | 'log' | 'error' | 'complete' | 'foundation_status';
     session_id: string;
     step?: string;
     progress?: number;
     message?: string;
     error?: string;
     trace?: string;
+    status?: 'PENDING' | 'SUCCESS' | 'MISSING' | 'ERROR';
 }
 

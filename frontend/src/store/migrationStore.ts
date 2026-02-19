@@ -12,6 +12,9 @@ interface RepoDetails {
     pat: string;
     sourceFramework: string;
     targetFramework: string;
+    targetFrameworkId?: string;
+    targetLanguage?: string;
+    targetEngine?: string;
     branches: string[];
 }
 
@@ -21,12 +24,14 @@ interface MigrationState {
     sessionId: string | null;
     isLoading: boolean;
     error: string | null;
+    foundationStatus: 'PENDING' | 'SUCCESS' | 'MISSING' | 'ERROR';
 
     setStep: (step: number) => void;
     setRepoDetails: (details: RepoDetails) => void;
     setSession: (response: CreateSessionResponse) => void;
     setLoading: (isLoading: boolean) => void;
     setError: (error: string | null) => void;
+    setFoundationStatus: (status: 'PENDING' | 'SUCCESS' | 'MISSING' | 'ERROR') => void;
     nextStep: () => void;
     reset: () => void;
 }
@@ -44,11 +49,15 @@ const initialState = {
         pat: '',
         sourceFramework: '',
         targetFramework: '',
+        targetFrameworkId: '',
+        targetLanguage: '',
+        targetEngine: '',
         branches: []
     },
     sessionId: null,
     isLoading: false,
-    error: null
+    error: null,
+    foundationStatus: 'PENDING' as 'PENDING' | 'SUCCESS' | 'MISSING' | 'ERROR'
 }
 
 export const useMigrationStore = create<MigrationState>((set) => ({
@@ -63,5 +72,6 @@ export const useMigrationStore = create<MigrationState>((set) => ({
     nextStep: () => set((state) => ({ step: state.step + 1 })),
     setLoading: (isLoading) => set({ isLoading }),
     setError: (error) => set({ error }),
+    setFoundationStatus: (foundationStatus) => set({ foundationStatus }),
     reset: () => set(initialState)
 }))

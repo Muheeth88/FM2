@@ -28,6 +28,11 @@ export const api = {
         return response.data
     },
 
+    bootstrap: async (sessionId: string): Promise<any> => {
+        const response = await apiInstance.post(`/api/session/${sessionId}/bootstrap`)
+        return response.data
+    },
+
     // Placeholder for future steps
     getSession: async (id: string): Promise<MigrationSession> => {
         const response = await apiInstance.get(`/api/session/${id}`)
