@@ -98,5 +98,18 @@ export const api = {
     getSessionIntents: async (sessionId: string) => {
         const response = await apiInstance.get(`/api/intent/session/${sessionId}`)
         return response.data
+    },
+
+    // Architecture Service (Step 10)
+    analyzeArchitecture: async (sessionId: string) => {
+        const response = await apiInstance.post('/api/architecture/analyze', {
+            session_id: sessionId
+        })
+        return response.data
+    },
+
+    getArchitecture: async (sessionId: string) => {
+        const response = await apiInstance.get(`/api/architecture/session/${sessionId}`)
+        return response.data
     }
 }

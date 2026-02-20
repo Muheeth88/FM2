@@ -152,13 +152,15 @@ const StepTimeline = ({ model }: { model: any }) => {
     );
 };
 
-export const IntentMappingViewer = () => {
+export const IntentMappingViewer = ({ autoFetch = true }: { autoFetch?: boolean }) => {
     const { sessionId, repoDetails } = useMigrationStore();
     const [intents, setIntents] = useState<IntentResult[]>([]);
     const [activeFeatureIndex, setActiveFeatureIndex] = useState(0);
     const [activePanel, setActivePanel] = useState<'raw' | 'normalized' | 'enriched'>('normalized');
     const [viewMode, setViewMode] = useState<'timeline' | 'json'>('timeline');
     const [loading, setLoading] = useState(true);
+    const [archLoading, setArchLoading] = useState(false);
+    const [archResult, setArchResult] = useState<any>(null);
 
     useEffect(() => {
         if (sessionId) {
@@ -166,8 +168,31 @@ export const IntentMappingViewer = () => {
                 setIntents(data);
                 setLoading(false);
             });
+            // Try to load existing architecture analysis IF autoFetch is true
+            if (autoFetch) {
+                api.getArchitecture(sessionId).then(data => {
+                    setArchResult(data);
+                }).catch(() => {
+                    // Not found, that's fine
+                });
+            }
         }
-    }, [sessionId]);
+    }, [sessionId, autoFetch]);
+
+    const handleAnalyzeArchitecture = async () => {
+        if (!sessionId) return;
+        setArchLoading(true);
+        try {
+            const result = await api.analyzeArchitecture(sessionId);
+            setArchResult(result);
+            alert("Architecture analysis completed successfully!");
+        } catch (error) {
+            console.error("Architecture analysis failed:", error);
+            alert("Failed to analyze architecture. Check console for details.");
+        } finally {
+            setArchLoading(false);
+        }
+    };
 
     if (loading) {
         return (
@@ -215,13 +240,32 @@ export const IntentMappingViewer = () => {
                         </div>
                         <h2 className="text-lg font-bold text-gray-900 tracking-tight">🔍 Intent Mapping Viewer</h2>
                     </div>
-                    <div className="flex items-center gap-4 text-xs">
-                        <span className="bg-blue-100 text-blue-700 px-2 py-1 rounded-full font-semibold border border-blue-200">
-                            Extraction: {activeIntent.extraction_version || 'v1'}
-                        </span>
-                        <span className={`px-2 py-1 rounded-full font-semibold border ${activeIntent.llm_used ? 'bg-purple-100 text-purple-700 border-purple-200' : 'bg-gray-100 text-gray-700 border-gray-200'}`}>
-                            LLM Enrichment: {activeIntent.llm_used ? 'YES' : 'NO'}
-                        </span>
+                    <div className="flex items-center gap-3">
+                        <button
+                            onClick={handleAnalyzeArchitecture}
+                            disabled={archLoading}
+                            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all border shadow-sm ${archResult
+                                ? 'bg-green-50 text-green-700 border-green-200 hover:bg-green-100'
+                                : 'bg-white text-blue-600 border-blue-100 hover:border-blue-300'
+                                } ${archLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                        >
+                            {archLoading ? (
+                                <Activity size={14} className="animate-spin" />
+                            ) : archResult ? (
+                                <CheckCircle2 size={14} />
+                            ) : (
+                                <Layers size={14} />
+                            )}
+                            {archLoading ? 'Analyzing...' : archResult ? 'Architecture Analyzed' : 'Analyze Repository Architecture'}
+                        </button>
+                        <div className="flex items-center gap-4 text-xs ml-4 border-l pl-4">
+                            <span className="bg-blue-100 text-blue-700 px-2 py-1 rounded-full font-semibold border border-blue-200">
+                                Extraction: {activeIntent.extraction_version || 'v1'}
+                            </span>
+                            <span className={`px-2 py-1 rounded-full font-semibold border ${activeIntent.llm_used ? 'bg-purple-100 text-purple-700 border-purple-200' : 'bg-gray-100 text-gray-700 border-gray-200'}`}>
+                                LLM Enrichment: {activeIntent.llm_used ? 'YES' : 'NO'}
+                            </span>
+                        </div>
                     </div>
                 </div>
 

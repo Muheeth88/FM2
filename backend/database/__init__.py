@@ -141,7 +141,40 @@ def init_db():
             error_message TEXT,
             started_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             completed_at TIMESTAMP
-        )''', "migration_runs")
+        )''', "migration_runs"),
+        ('''CREATE TABLE IF NOT EXISTS repository_architecture (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            session_id TEXT NOT NULL,
+            source_commit TEXT NOT NULL,
+            language TEXT NOT NULL,
+            framework TEXT NOT NULL,
+            driver_model TEXT,
+            driver_scope TEXT,
+            base_test_class TEXT,
+            inheritance_tree TEXT,
+            execution TEXT,
+            data_driven INTEGER DEFAULT 0,
+            has_global_setup INTEGER DEFAULT 0,
+            has_per_test_setup INTEGER DEFAULT 0,
+            has_teardown INTEGER DEFAULT 0,
+            config_files TEXT,
+            structure_type TEXT,
+            driver_init_location TEXT,
+            driver_teardown_location TEXT,
+            driver_lifecycle_binding TEXT,
+            parallel_config TEXT,
+            data_provider TEXT,
+            test_types_detected TEXT,
+            framework_version TEXT,
+            page_object_pattern TEXT,
+            ui_architecture TEXT,
+            api_architecture TEXT,
+            architecture_hash TEXT,
+            analysis_version TEXT,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            UNIQUE(session_id, source_commit)
+        )''', "repository_architecture")
     ]
 
     for sql, name in tables:
@@ -179,7 +212,20 @@ def init_db():
         ("ALTER TABLE feature_shared_modules ADD COLUMN file_hash TEXT", "feature_shared_modules.file_hash"),
         ("ALTER TABLE feature_config_dependencies ADD COLUMN file_hash TEXT", "feature_config_dependencies.file_hash"),
         ("ALTER TABLE features ADD COLUMN snapshot_hash TEXT", "features.snapshot_hash"),
-        ("ALTER TABLE features ADD COLUMN source_commit TEXT", "features.source_commit")
+        ("ALTER TABLE features ADD COLUMN source_commit TEXT", "features.source_commit"),
+        # Repository Architecture migrations
+        ("ALTER TABLE repository_architecture ADD COLUMN execution TEXT", "repository_architecture.execution"),
+        ("ALTER TABLE repository_architecture ADD COLUMN structure_type TEXT", "repository_architecture.structure_type"),
+        ("ALTER TABLE repository_architecture ADD COLUMN driver_init_location TEXT", "repository_architecture.driver_init_location"),
+        ("ALTER TABLE repository_architecture ADD COLUMN driver_teardown_location TEXT", "repository_architecture.driver_teardown_location"),
+        ("ALTER TABLE repository_architecture ADD COLUMN driver_lifecycle_binding TEXT", "repository_architecture.driver_lifecycle_binding"),
+        ("ALTER TABLE repository_architecture ADD COLUMN parallel_config TEXT", "repository_architecture.parallel_config"),
+        ("ALTER TABLE repository_architecture ADD COLUMN data_provider TEXT", "repository_architecture.data_provider"),
+        ("ALTER TABLE repository_architecture ADD COLUMN test_types_detected TEXT", "repository_architecture.test_types_detected"),
+        ("ALTER TABLE repository_architecture ADD COLUMN framework_version TEXT", "repository_architecture.framework_version"),
+        ("ALTER TABLE repository_architecture ADD COLUMN page_object_pattern TEXT", "repository_architecture.page_object_pattern"),
+        ("ALTER TABLE repository_architecture ADD COLUMN ui_architecture TEXT", "repository_architecture.ui_architecture"),
+        ("ALTER TABLE repository_architecture ADD COLUMN api_architecture TEXT", "repository_architecture.api_architecture")
     ]
 
     for sql, name in migrations:

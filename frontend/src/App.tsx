@@ -286,7 +286,7 @@ function App() {
             </div>
           )}
 
-          {step === 4 && <IntentMappingViewer />}
+          {step === 4 && <IntentMappingViewer autoFetch={false} />}
         </main>
       </div>
     </div>

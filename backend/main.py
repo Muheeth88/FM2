@@ -7,7 +7,7 @@ from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 import logging
 from database import init_db
-from routes import git, sessions, analysis, intent
+from routes import git, sessions, analysis, intent, architecture
 from services.websocket_manager import ws_manager
 
 # Configure logging
@@ -32,6 +32,7 @@ app.include_router(git.router)
 app.include_router(sessions.router)
 app.include_router(analysis.router)
 app.include_router(intent.router)
+app.include_router(architecture.router)
 
 @app.get("/")
 async def root():
